@@ -82,12 +82,12 @@ def load_scene_camera(path):
     with open(path) as json_file:
         data:dict = json.load(json_file)
     parsed_data = []
-    for i in range(len(data)):
+    for k, val in data.items():
         entry = {}
-        entry["cam_K"] = np.array(data[str(i+1)]["cam_K"]).reshape((3, 3))
+        entry["cam_K"] = np.array(val["cam_K"]).reshape((3, 3))
         T_cw = np.zeros((4, 4))
-        T_cw[:3, :3] = np.array(data[str(i+1)]["cam_R_w2c"]).reshape((3, 3))
-        T_cw[:3, 3] = np.array(data[str(i+1)]["cam_t_w2c"])/1000
+        T_cw[:3, :3] = np.array(val["cam_R_w2c"]).reshape((3, 3))
+        T_cw[:3, 3] = np.array(val["cam_t_w2c"])/1000
         T_cw[3, 3] = 1
         entry["T_cw"] = T_cw
         parsed_data.append(entry)
