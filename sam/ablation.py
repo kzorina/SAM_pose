@@ -112,14 +112,17 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
 
 def main():
     start_time = time.time()
+    # dataset_type = "ycbv"
     dataset_type = "hope"
-    DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets")
+    DATASETS_PATH = Path("/home/kzorina/work/bop_datasets")
     # DATASET_NAME = "SynthDynamicOcclusion"
     # DATASET_NAME = "SynthStatic"
     DATASET_NAME = "hopeVideo"
     scenes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # scenes = [0, 1, 2]
     # scenes = [0]
+    # DATASET_NAME = "ycbv_test_bop19"
+    # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
 
     pool = multiprocessing.Pool(processes=15)
 
@@ -150,7 +153,7 @@ def main():
             # forked_params.outlier_rejection_treshold_trans = trans
             # forked_params.outlier_rejection_treshold_rot = rot
             # pool.apply_async(anotate_dataset, args=(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type))
-            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params)
+            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type)
     # pool.close()
     # pool.join()
 
