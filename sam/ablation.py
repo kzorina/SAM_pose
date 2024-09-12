@@ -9,7 +9,7 @@ from utils import load_scene_camera, load_pickle, merge_T_cos_px_counts
 from SamWrapper import SamWrapper
 from State import *
 from GlobalParams import GlobalParams
-from Vizualization_tools import display_factor_graph, animate_refinement, animate_state
+# from Vizualization_tools import display_factor_graph, animate_refinement, animate_state
 from bop_tools import convert_frames_to_bop, export_bop
 import copy
 import os
