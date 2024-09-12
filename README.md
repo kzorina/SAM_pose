@@ -19,3 +19,14 @@ This folder contains the Python implementation of our short horizon method prese
 ## Usage
 
 For detailed instructions on how to use the scripts and packages, refer to the respective folders. Each folder contains a `README.md` file with specific information and instructions.
+
+
+## Installation instructions
+
+```
+conda create -y -n sampose python=3.12 
+conda activate sampose
+mamba install numpy pinocchio gtsam matplotlib scipy  # sam
+ # for gtsam processing
+mamba install opencv pytorch
+```
