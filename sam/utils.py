@@ -69,6 +69,7 @@ OBJ_IDS = {
 }
 
 def load_pickle(path: Path):
+    print("Loading file ", str(path))
     with open(path, 'rb') as file:
         data = pickle.load(file)
     return data

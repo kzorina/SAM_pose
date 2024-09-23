@@ -16,7 +16,16 @@ import gtsam
 import multiprocessing
 import shutil
 
+# METHOD_BACKBONE = 'cosy_'
+# COMMENT = 'synt_real_0.0_threshold_'
+# METHOD_BACKBONE = 'mega_'
+# COMMENT = ''
+# for hope
+METHOD_BACKBONE = ''
+COMMENT = ''
+
 def load_data(path: Path):
+    print('reading data from ', str(path))
     with open(path, 'rb') as file:
         data = pickle.load(file)
     return data
@@ -99,8 +108,8 @@ def refine_ycbv_inference(DATASETS_PATH, DATASET_NAME, sam_settings):
     sam = SAM(sam_settings)
     sam.current_time_stamp = -0.1
     frames_gt = load_scene_camera(dataset_path / "scene_camera.json")
-    frames_prediction = load_data(dataset_path / "frames_prediction.p")
-    px_counts = load_data(dataset_path / "frames_px_counts.p")
+    frames_prediction = load_data(dataset_path / f"{METHOD_BACKBONE}{COMMENT}frames_prediction.p")
+    px_counts = load_data(dataset_path / f"{METHOD_BACKBONE}{COMMENT}frames_px_counts.p")
     refined = []
     estimate_progress = []
     images = sorted(os.listdir(dataset_path / "rgb"))
@@ -131,7 +140,7 @@ def refine_ycbv_inference(DATASETS_PATH, DATASET_NAME, sam_settings):
             print(f"\r({(idx + 1)}/{len(images)*repetitions})", end='')
 
     print("")
-    with open(dataset_path / 'frames_refined_prediction.p', 'wb') as file:
+    with open(dataset_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
         pickle.dump(refined, file)
     return refined
 
@@ -179,15 +188,17 @@ def merge_inferences(DATASETS_PATH, datasets, merge_from="frames_prediction.p", 
 
 if __name__ == "__main__":
     start_time = time.time()
+    # dataset_type = "ycbv"
     dataset_type = "hope"
     # bare_minimum_example()
     # refine_ysbv_inference(Path("/mnt/Data/HappyPose_Data/bop_datasets/ycbv"), 50)
     # DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets/ycbv")
     # DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets/hopeVideo")
     # DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets")
-    DATASETS_PATH = Path("/media/vojta/New Volume/HappyPose_Data/bop_datasets")
+    DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
     # DATASET_NAME = "SynthStatic"
     DATASET_NAME = "hopeVideo"
+    # DATASET_NAME = "ycbv"
     # DATASET_NAME = "SynthDynamic"
     # DATASET_NAME = "SynthDynamicOcclusion"
     # DATASET_NAME = "SynthTest"
@@ -197,7 +208,7 @@ if __name__ == "__main__":
     datasets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # datasets = [0, 1, 2]
     # datasets = [0]
-    __refresh_dir(DATASETS_PATH / DATASET_NAME / "ablation")
+    # __refresh_dir(DATASETS_PATH / DATASET_NAME / "ablation")
     pool = multiprocessing.Pool(processes=15)
 
     # for ws in [2, 5, 10, 20]:
@@ -229,7 +240,10 @@ if __name__ == "__main__":
                                                                        velocity_prior_sigma=10,
                                                                        reject_overlaps=0.05)
                                             print(f"{mod},{ort}, {tvt:.8f}, {Rvt:.8f}, {cov_drift_lin_vel:.8f}, {cov_drift_ang_vel:.8f}, {cov2_t:.8f}, {cov2_R:.8f}")
-                                            output_name = f'gtsam_{DATASET_NAME}-test_{mod}_{str(sam_settings)}_.csv'
+                                            
+                                            
+                                            
+                                            output_name = f'samshorthorizon_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{mod}_{str(sam_settings)}_.csv'
 
                                             # pool.apply_async(anotate_dataset_parallel_safe, args=(dataset_type, DATASETS_PATH/DATASET_NAME, datasets, sam_settings, output_name))
                                             anotate_dataset_parallel_safe(dataset_type, DATASETS_PATH/DATASET_NAME, datasets, sam_settings, output_name)
@@ -237,6 +251,8 @@ if __name__ == "__main__":
     pool.join()
 
     # merge_inferences(DATASET_PATH, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "frames_prediction_mod6.p", f'cosypose_{DATASET_NAME}-test.csv', dataset_type)
-    merge_inferences(DATASET_PATH, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "frames_prediction.p", f'cosypose_{DATASET_NAME}-test.csv', dataset_type)
+    # merge_inferences(DATASET_PATH, datasets, 
+    #                  "frames_prediction.p", 
+    #                  f'cosy_{DATASET_NAME}-test_short_horizon.csv', dataset_type)
     print(f"elapsed time: {time.time() - start_time:.2f} s")
     # main()

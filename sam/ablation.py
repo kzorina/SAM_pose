@@ -16,6 +16,13 @@ import os
 import shutil
 import multiprocessing
 
+METHOD_BACKBONE = 'cosy_'
+COMMENT = 'synt_real_0.0_threshold_'
+# METHOD_BACKBONE = 'mega_'
+# COMMENT = ''
+# for hope
+# METHOD_BACKBONE = ''
+# COMMENT = ''
 
 def __refresh_dir(path):
     """
@@ -79,66 +86,70 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams)
     return refined_scene
 
 def refine_scene(scene_path, params):
+    print('refining scene ', scene_path)
     scene_camera = load_scene_camera(scene_path / "scene_camera.json")
-    frames_prediction = load_pickle(scene_path / "frames_prediction.p")
-    px_counts = load_pickle(scene_path / "frames_px_counts.p")
+    frames_prediction = load_pickle(scene_path / f"{METHOD_BACKBONE}{COMMENT}frames_prediction.p")
+    px_counts = load_pickle(scene_path / f"{METHOD_BACKBONE}{COMMENT}frames_px_counts.p")
+    # frames_prediction = load_pickle(scene_path / "frames_prediction.p")
+    # px_counts = load_pickle(scene_path / "frames_px_counts.p")
     refined_scene = refine_data(scene_camera, frames_prediction, px_counts, params)
     return refined_scene
 
-def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='hope'):
+def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='hope', which_modality='static'):
     results = {}
     print(f"scenes: {scenes}")
     for scene_num in scenes:
         scene_path = DATASETS_PATH/DATASET_NAME/"test"/ f"{scene_num:06}"
         refined_scene = refine_scene(scene_path, params)
         results[scene_num] = refined_scene
-        with open(scene_path / 'frames_refined_prediction.p', 'wb') as file:
+        with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
             pickle.dump(refined_scene, file)
-    for tvt in [1]:
+    for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
         # for rvt in [1]:
-        # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]:
-
+        # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
+        forked_params = copy.deepcopy(params) 
+        forked_params.t_validity_treshold = tvt
+        rvt_list = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]
+        # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
-        for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
+        # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
+        for rvt in rvt_list: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
-            forked_params = copy.deepcopy(params)
+            # forked_params = copy.deepcopy(params)
             # forked_params.R_validity_treshold = params.R_validity_treshold * rvt
             # forked_params.t_validity_treshold = params.t_validity_treshold * tvt
             forked_params.R_validity_treshold = rvt
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
-            output_name = f'gtsam_{DATASET_NAME}-test_{str(forked_params)}_.csv'
-            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
+            output_name = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
+            print('saving final result to ', output_name)
+            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_kz" / output_name)
 
 def main():
+    scenes_dict = {
+        'hopeVideo': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        'ycbv': [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    }
     start_time = time.time()
-    # dataset_type = "ycbv"
-    dataset_type = "hope"
-    DATASETS_PATH = Path("/home/kzorina/work/bop_datasets")
+    dataset_type = "ycbv"
+    # dataset_type = "hope"
+    DATASETS_PATH =  Path("/home/ros/kzorina/vojtas")
     # DATASET_NAME = "SynthDynamicOcclusion"
     # DATASET_NAME = "SynthStatic"
-    DATASET_NAME = "hopeVideo"
-    scenes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    # DATASET_NAME = "hopeVideo"
+    DATASET_NAME = "ycbv"
+    scenes = scenes_dict[DATASET_NAME]
     # scenes = [0, 1, 2]
     # scenes = [0]
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    which_modality = 'dynamic'  # 'static', 'dynamic'
 
     pool = multiprocessing.Pool(processes=15)
 
-    __refresh_dir(DATASETS_PATH / DATASET_NAME / "ablation")
-    # dynamic
-    # base_params = GlobalParams(
-    #                             cov_drift_lin_vel=0.1,
-    #                             cov_drift_ang_vel=1,
-    #                             outlier_rejection_treshold_trans=0.10,
-    #                             outlier_rejection_treshold_rot=10*np.pi/180,
-    #                             t_validity_treshold=0.000005,
-    #                             R_validity_treshold=0.00075,
-    #                             max_derivative_order=1,
-    #                             reject_overlaps=0.05)
-    # static
-    base_params = GlobalParams(
+    # __refresh_dir(DATASETS_PATH / DATASET_NAME / "ablation")
+    if which_modality == 'static':
+        base_params = GlobalParams(
                                 cov_drift_lin_vel=0.00000001,
                                 cov_drift_ang_vel=0.0000001,
                                 outlier_rejection_treshold_trans = 0.10,
@@ -147,13 +158,27 @@ def main():
                                 R_validity_treshold=0.00075,
                                 max_derivative_order=0,
                                 reject_overlaps=0.05)
+    elif which_modality == 'dynamic':
+        base_params = GlobalParams(
+                                cov_drift_lin_vel=0.1,
+                                cov_drift_ang_vel=1,
+                                outlier_rejection_treshold_trans=0.10,
+                                outlier_rejection_treshold_rot=10*np.pi/180,
+                                t_validity_treshold=0.000005,
+                                R_validity_treshold=0.00075,
+                                max_derivative_order=1,
+                                reject_overlaps=0.05)
+    else:
+        raise ValueError(f"Unknown modality {which_modality}")
+
+    
     for trans in [1]:
         for rot in [1]:
             forked_params = copy.deepcopy(base_params)
             # forked_params.outlier_rejection_treshold_trans = trans
             # forked_params.outlier_rejection_treshold_rot = rot
             # pool.apply_async(anotate_dataset, args=(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type))
-            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type)
+            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality)
     # pool.close()
     # pool.join()
 
