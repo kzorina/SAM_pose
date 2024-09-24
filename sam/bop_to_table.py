@@ -64,8 +64,8 @@ elif which_modality == 'dynamic':
                         reject_overlaps=0.05)
 recall_data = {}
 precision_data = {}
-for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
-    for rvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
+for tvt in [1, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
+    for rvt in [1, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
         base_params.R_validity_treshold = rvt
         base_params.t_validity_treshold = tvt
         eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
