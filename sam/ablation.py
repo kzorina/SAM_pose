@@ -95,21 +95,25 @@ def refine_scene(scene_path, params):
     refined_scene = refine_data(scene_camera, frames_prediction, px_counts, params)
     return refined_scene
 
-def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='hope', which_modality='static'):
+def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='hope', which_modality='static', load_scene=False):
     results = {}
     print(f"scenes: {scenes}")
     for scene_num in scenes:
         scene_path = DATASETS_PATH/DATASET_NAME/"test"/ f"{scene_num:06}"
-        refined_scene = refine_scene(scene_path, params)
+        if load_scene:
+            with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'rb') as file:
+                refined_scene = pickle.load(file)
+        else:
+            refined_scene = refine_scene(scene_path, params)
+            with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
+                pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-        with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
-            pickle.dump(refined_scene, file)
-    for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
+    for tvt in [1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
         # for rvt in [1]:
         # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
         forked_params = copy.deepcopy(params) 
         forked_params.t_validity_treshold = tvt
-        rvt_list = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]
+        rvt_list = [1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
@@ -171,14 +175,16 @@ def main():
     else:
         raise ValueError(f"Unknown modality {which_modality}")
 
-    
-    for trans in [1]:
-        for rot in [1]:
-            forked_params = copy.deepcopy(base_params)
-            # forked_params.outlier_rejection_treshold_trans = trans
-            # forked_params.outlier_rejection_treshold_rot = rot
-            # pool.apply_async(anotate_dataset, args=(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type))
-            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality)
+    forked_params = copy.deepcopy(base_params)
+    anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality,
+                    load_scene=True)
+    # for trans in [1]:
+    #     for rot in [1]:
+    #         forked_params = copy.deepcopy(base_params)
+    #         # forked_params.outlier_rejection_treshold_trans = trans
+    #         # forked_params.outlier_rejection_treshold_rot = rot
+    #         # pool.apply_async(anotate_dataset, args=(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type))
+    #         anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality, load_scene=True)
     # pool.close()
     # pool.join()
 
