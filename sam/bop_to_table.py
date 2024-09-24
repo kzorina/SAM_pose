@@ -1,3 +1,4 @@
+import pathlib
 import pickle
 from pathlib import Path
 from GlobalParams import GlobalParams
@@ -70,6 +71,9 @@ for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
         eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
+        if not pathlib.Path(scores).exists():
+            print("Folder does not exist: ", eval_dir)
+            continue
         data = json.load(open(scores))
         recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
         precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
