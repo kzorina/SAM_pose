@@ -67,7 +67,7 @@ for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
     for rvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
         base_params.R_validity_treshold = rvt
         base_params.t_validity_treshold = tvt
-        eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}.csv'
+        eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
         data = json.load(open(scores))
