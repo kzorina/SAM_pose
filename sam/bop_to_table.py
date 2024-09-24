@@ -7,6 +7,7 @@ def display_table(data_dict, col_width=10):
     # Header row (column names in scientific notation)
     header = " " * col_width  # Empty space for the corner where row and column names meet
     header += "".join(f"{name:.1e}".rjust(col_width) for name in column_names)
+    print(header)
 
     # Print the table
     for row in row_names:
