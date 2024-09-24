@@ -2,6 +2,7 @@ import pickle
 from pathlib import Path
 from GlobalParams import GlobalParams
 import numpy as np
+import json
 
 def display_table(data_dict, col_width=10):
     row_names = sorted(list(set([t for (t, r) in data_dict.keys()])))
@@ -38,6 +39,7 @@ DATASET_NAME = 'ycbv'
 METHOD_BACKBONE = 'cosy_'
 COMMENT = 'synt_real_0.0_threshold_'
 which_modality = 'dynamic'  # 'static', 'dynamic'
+metrics = ['ad', 'adi', 'add']
 
 if which_modality == 'static':
     base_params = GlobalParams(
@@ -59,13 +61,20 @@ elif which_modality == 'dynamic':
                         R_validity_treshold=0.00075,
                         max_derivative_order=1,
                         reject_overlaps=0.05)
+recall_data = {}
+precision_data = {}
+for tvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
+    for rvt in [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]:
+        base_params.R_validity_treshold = rvt
+        base_params.t_validity_treshold = tvt
+        eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}.csv'
+        print(bop_log_dir / eval_dir / 'scores_bop19.json')
+        scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
+        data = json.load(open(scores))
+        recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
+        precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
 
-eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}.csv'
-print(bop_log_dir / eval_dir)
-# /gtsam_ycbv-test_cosy_synt_real_0.0_threshold_1_1_1.0_0.1_1_0.1_0.174532925│   1.0e-03      0.91      0.76      0.68      0.65      0.64
-# 19943295_1.00E-05_1.00E-04/scores_bop19.json
-#
-# print("Recall results")
-# display_table(recall_data)
-# print("Precision results")
-# display_table(precision_data)
+print("Recall results")
+display_table(recall_data)
+print("Precision results")
+display_table(precision_data)
