@@ -17,10 +17,10 @@ rvt_indic = {
 }
 
 if args.which_bop == 'bop19':
-    eval_dir = '/home/ros/sandbox_mf/bop_toolkit/data/evals'
+    eval_dir = '/home/ros/kzorina/vojtas/bop_eval'
     metrics = ['ad', 'adi', 'add']
 elif args.which_bop == 'bop24':
-    eval_dir = '/home/ros/kzorina/vojtas/bop_eval'
+    eval_dir = '/home/ros/sandbox_mf/bop_toolkit/data/evals'
 else:
     raise ValueError(f"Unknown bop {args.which_bop}")
 
