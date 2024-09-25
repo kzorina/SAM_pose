@@ -188,8 +188,8 @@ def merge_inferences(DATASETS_PATH, datasets, merge_from="frames_prediction.p", 
 
 if __name__ == "__main__":
     start_time = time.time()
-    # dataset_type = "ycbv"
-    dataset_type = "hope"
+    dataset_type = "ycbv"
+    # dataset_type = "hope"
     # bare_minimum_example()
     # refine_ysbv_inference(Path("/mnt/Data/HappyPose_Data/bop_datasets/ycbv"), 50)
     # DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets/ycbv")
@@ -197,15 +197,15 @@ if __name__ == "__main__":
     # DATASETS_PATH = Path("/mnt/Data/HappyPose_Data/bop_datasets")
     DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
     # DATASET_NAME = "SynthStatic"
-    DATASET_NAME = "hopeVideo"
-    # DATASET_NAME = "ycbv"
+    # DATASET_NAME = "hopeVideo"
+    DATASET_NAME = "ycbv"
     # DATASET_NAME = "SynthDynamic"
     # DATASET_NAME = "SynthDynamicOcclusion"
     # DATASET_NAME = "SynthTest"
 
     DATASET_PATH = DATASETS_PATH / DATASET_NAME
-    # datasets = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-    datasets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    datasets = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    # datasets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # datasets = [0, 1, 2]
     # datasets = [0]
     # __refresh_dir(DATASETS_PATH / DATASET_NAME / "ablation")
