@@ -108,12 +108,12 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
+    for tvt in [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
         # for rvt in [1]:
         # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
         forked_params = copy.deepcopy(params) 
         forked_params.t_validity_treshold = tvt
-        rvt_list = [1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
+        rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
@@ -174,10 +174,11 @@ def main():
                                 reject_overlaps=0.05)
     else:
         raise ValueError(f"Unknown modality {which_modality}")
-
+    # to not reject anything
+    base_params.reject_overlaps = 0
     forked_params = copy.deepcopy(base_params)
     anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality,
-                    load_scene=True)
+                    load_scene=False)
     # for trans in [1]:
     #     for rot in [1]:
     #         forked_params = copy.deepcopy(base_params)
