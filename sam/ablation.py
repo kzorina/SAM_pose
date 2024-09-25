@@ -16,13 +16,14 @@ import os
 import shutil
 import multiprocessing
 
-# METHOD_BACKBONE = 'cosy_'
+METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
+COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-METHOD_BACKBONE = ''
-COMMENT = ''
+# METHOD_BACKBONE = ''
+# COMMENT = ''
 
 def __refresh_dir(path):
     """
@@ -176,7 +177,8 @@ def main():
     else:
         raise ValueError(f"Unknown modality {which_modality}")
     # to not reject anything
-    # base_params.reject_overlaps = 0
+    if 'noreject' in COMMENT:
+        base_params.reject_overlaps = 0
     forked_params = copy.deepcopy(base_params)
     anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality,
                     load_scene=False)
