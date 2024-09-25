@@ -176,7 +176,7 @@ def main():
     else:
         raise ValueError(f"Unknown modality {which_modality}")
     # to not reject anything
-    base_params.reject_overlaps = 0
+    # base_params.reject_overlaps = 0
     forked_params = copy.deepcopy(base_params)
     anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality,
                     load_scene=False)
