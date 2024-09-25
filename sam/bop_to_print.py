@@ -18,6 +18,8 @@ save_list = []
 for dir in dirs:
     # print(dir)
     method, dataset, backbone = dir.split('_')[:3]
+    if 'noreject' in dir:
+        method += '_noreject'
     tvt, rvt = dir.split('_')[-2:]
     try:
         dyn_stat, orient = rvt_indic[float(rvt)]
