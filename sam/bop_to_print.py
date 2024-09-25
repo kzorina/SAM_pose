@@ -28,6 +28,9 @@ root, dirs, files = next(os.walk(eval_dir))
 save_list = []
 for dir in dirs:
     # print(dir)
+    if len(dir.split('_')) < 3:
+        print(dir)
+        continue
     method, dataset, backbone = dir.split('_')[:3]
     if 'noreject' in dir:
         method += '_noreject'
@@ -38,7 +41,7 @@ for dir in dirs:
         dyn_stat, orient = 'unknown', 'unknown'
     scores = json.load(open(str(Path(eval_dir) / dir / f'scores_{args.which_bop}.json')))
     if args.which_bop == 'bop19':
-        print(scores.keys())
+        # print(scores.keys())
         metrics_present = True
         for m in metrics:
             if 'bop19_average_recall_' + m not in scores.keys():
