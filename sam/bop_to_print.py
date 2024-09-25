@@ -18,7 +18,10 @@ for dir in dirs:
     # print(dir)
     method, dataset, backbone = dir.split('_')[:3]
     tvt, rvt = dir.split('_')[-2:]
-    dyn_stat, orient = rvt_indic[float(rvt)]
+    try:
+        dyn_stat, orient = rvt_indic[float(rvt)]
+    except:
+        dyn_stat, orient = 'unknown', 'unknown'
     scores = json.load(open(str(Path(eval_dir) / dir / 'scores_bop24.json')))
     # print(f"{method}, {dataset}, {backbone} | {tvt}, {rvt} recall = {}")
     print(f"{method}, {dataset}, {backbone} | {dyn_stat}, {orient} precision = {scores['bop24_mAP']}")
