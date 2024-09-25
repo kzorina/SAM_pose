@@ -16,13 +16,13 @@ import os
 import shutil
 import multiprocessing
 
-METHOD_BACKBONE = 'cosy_'
-COMMENT = 'synt_real_0.0_threshold_'
+# METHOD_BACKBONE = 'cosy_'
+# COMMENT = 'synt_real_0.0_threshold_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-# METHOD_BACKBONE = ''
-# COMMENT = ''
+METHOD_BACKBONE = ''
+COMMENT = ''
 
 def __refresh_dir(path):
     """
@@ -108,13 +108,14 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
+    for tvt in [1.]:
+    # for tvt in [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
         # for rvt in [1]:
         # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
         forked_params = copy.deepcopy(params) 
         forked_params.t_validity_treshold = tvt
-        rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
-        # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
+        # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
+        rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         for rvt in rvt_list: # precision oriented, recall oriented for static
@@ -127,7 +128,7 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
             output_name = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
-            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_kz" / output_name)
+            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
     scenes_dict = {
@@ -147,7 +148,7 @@ def main():
     # scenes = [0]
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-    which_modality = 'dynamic'  # 'static', 'dynamic'
+    which_modality = 'static'  # 'static', 'dynamic'
 
     pool = multiprocessing.Pool(processes=15)
 
