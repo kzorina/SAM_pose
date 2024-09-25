@@ -39,6 +39,12 @@ for dir in dirs:
     scores = json.load(open(str(Path(eval_dir) / dir / f'scores_{args.which_bop}.json')))
     if args.which_bop == 'bop19':
         print(scores.keys())
+        metrics_present = True
+        for m in metrics:
+            if 'bop19_average_recall_' + m not in scores.keys():
+                metrics_present = False
+        if not metrics_present:
+            continue
         avg_rec = np.mean([scores['bop19_average_recall_' + m] for m in metrics])
         avg_prec = np.mean([scores['bop19_average_precision_' + m] for m in metrics])
         save_list.append((method, dataset, backbone, dyn_stat, orient, 'recall', avg_rec))
