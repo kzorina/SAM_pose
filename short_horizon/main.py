@@ -16,13 +16,13 @@ import gtsam
 import multiprocessing
 import shutil
 
-# METHOD_BACKBONE = 'cosy_'
-# COMMENT = 'synt_real_0.0_threshold_'
+METHOD_BACKBONE = 'cosy_'
+COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-METHOD_BACKBONE = ''
-COMMENT = ''
+# METHOD_BACKBONE = ''
+# COMMENT = ''
 
 def load_data(path: Path):
     print('reading data from ', str(path))
