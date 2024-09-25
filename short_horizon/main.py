@@ -238,7 +238,8 @@ if __name__ == "__main__":
                                                                        R_validity_treshold=Rvt,
                                                                        hysteresis_coef=hyster,
                                                                        velocity_prior_sigma=10,
-                                                                       reject_overlaps=0.05)
+                                                                       reject_overlaps=0.
+                                                                       )
                                             print(f"{mod},{ort}, {tvt:.8f}, {Rvt:.8f}, {cov_drift_lin_vel:.8f}, {cov_drift_ang_vel:.8f}, {cov2_t:.8f}, {cov2_R:.8f}")
                                             
                                             
