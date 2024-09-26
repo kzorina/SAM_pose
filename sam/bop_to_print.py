@@ -9,6 +9,8 @@ parser.add_argument('--which_bop', type=str, help='Which bop results to print',
        default="bop19")
 parser.add_argument('--codeword', type=str, help='What word to look for in dirs',
        default="ycbv")
+parser.add_argument('--metrics', type=str, help='add or vsd',
+       default="add")
 
 args = parser.parse_args()
 rvt_indic = {
@@ -20,7 +22,7 @@ rvt_indic = {
 
 if args.which_bop == 'bop19':
     eval_dir = '/home/ros/kzorina/vojtas/bop_eval'
-    metrics = ['ad', 'adi', 'add']
+    metrics = ['ad', 'adi', 'add'] if args.metrics == 'add' else ['vsd', 'mssd', 'mspd']
 elif args.which_bop == 'bop24':
     eval_dir = '/home/ros/sandbox_mf/bop_toolkit/data/evals'
 else:
