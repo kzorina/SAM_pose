@@ -24,7 +24,7 @@ import multiprocessing
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
-SAVE_CSV_COMMENT = '-measurement-covariance-prime'
+SAVE_CSV_COMMENT = '-measurement-covariance-camera-frame'
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
