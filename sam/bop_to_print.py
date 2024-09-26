@@ -7,6 +7,8 @@ import numpy as np
 parser = argparse.ArgumentParser(description='Create Configuration')
 parser.add_argument('--which_bop', type=str, help='Which bop results to print',
        default="bop19")
+parser.add_argument('--codeword', type=str, help='What word to look for in dirs',
+       default="ycbv")
 
 args = parser.parse_args()
 rvt_indic = {
@@ -29,7 +31,8 @@ save_list = []
 for dir in dirs:
     # print(dir)
     if len(dir.split('_')) < 3:
-        print(dir)
+        continue
+    if args.codeword not in dir:
         continue
     method, dataset, backbone = dir.split('_')[:3]
     if 'noreject' in dir:
