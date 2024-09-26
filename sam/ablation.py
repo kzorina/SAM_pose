@@ -16,15 +16,15 @@ import os
 import shutil
 import multiprocessing
 
-METHOD_BACKBONE = 'cosy_'
+# METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
-COMMENT = 'synt_real_0.0_threshold_noreject_'
+# COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-# METHOD_BACKBONE = ''
-# COMMENT = ''
-
+METHOD_BACKBONE = ''
+COMMENT = ''
+SAVE_CSV_COMMENT = '-measurement-covariance-prime'
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
@@ -72,10 +72,10 @@ def recalculate_validity(results, t_validity_treshold, R_validity_treshold, reje
 def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams):
     sam = SamWrapper(params)
     refined_scene = []
-    for i in range(len(scene_camera)):
-        time_stamp = i/30
+    for i in range(len(scene_camera)):  # iter over image_ids
+        time_stamp = i/30  # time in secs if fps=30
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
-        Q_T_wc = np.eye(6)*10**(-6)
+        Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         sam.insert_detections({"T_wc":T_wc, "Q":Q_T_wc}, detections, time_stamp)
         current_state = sam.get_state()
@@ -127,29 +127,33 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             forked_params.R_validity_treshold = rvt
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
-            output_name = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
+            output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
+    # DATASET_NAME = "ycbv"
+    DATASET_NAME = "hopeVideo"
+    DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
+
     scenes_dict = {
         'hopeVideo': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         'ycbv': [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
     }
     start_time = time.time()
-    dataset_type = "ycbv"
+    dataset_type = "ycbv" if DATASET_NAME == 'ycbv' else "hope"
     # dataset_type = "hope"
-    DATASETS_PATH =  Path("/home/ros/kzorina/vojtas")
+
     # DATASET_NAME = "SynthDynamicOcclusion"
     # DATASET_NAME = "SynthStatic"
-    # DATASET_NAME = "hopeVideo"
-    DATASET_NAME = "ycbv"
+
+
     scenes = scenes_dict[DATASET_NAME]
     # scenes = [0, 1, 2]
     # scenes = [0]
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-    which_modality = 'dynamic'  # 'static', 'dynamic'
+    which_modality = 'static'  # 'static', 'dynamic'
 
     pool = multiprocessing.Pool(processes=15)
 
