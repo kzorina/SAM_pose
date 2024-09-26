@@ -153,7 +153,7 @@ def main():
     # scenes = [0]
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-    which_modality = 'static'  # 'static', 'dynamic'
+    which_modality = 'dynamic'  # 'static', 'dynamic'
 
     pool = multiprocessing.Pool(processes=15)
 
