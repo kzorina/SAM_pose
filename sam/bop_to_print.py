@@ -11,7 +11,8 @@ parser.add_argument('--codeword', type=str, help='What word to look for in dirs'
        default="ycbv")
 parser.add_argument('--metrics', type=str, help='add or vsd',
        default="add")
-
+parser.add_argument("--result_dirnames", help="Comma-separated names of files with results.",
+)
 args = parser.parse_args()
 rvt_indic = {
     0.000937: ('dynamic', 'precision'),
@@ -29,13 +30,19 @@ else:
     raise ValueError(f"Unknown bop {args.which_bop}")
 
 root, dirs, files = next(os.walk(eval_dir))
+if args.result_dirnames is not None:
+    dirs_of_interest = args.result_dirnames.split(",")
 save_list = []
 for dir in dirs:
     # print(dir)
     if len(dir.split('_')) < 3:
         continue
-    if args.codeword not in dir:
-        continue
+    if args.result_dirnames is not None:
+        if dir not in dirs_of_interest:
+            continue
+    else:
+        if args.codeword not in dir:
+            continue
     method, dataset, backbone = dir.split('_')[:3]
     if 'noreject' in dir:
         method += '_noreject'
