@@ -35,8 +35,8 @@ def exponential_function(x: np.ndarray | int | float, a: float, b: float) -> np.
 def measurement_covariance(
     Tco: np.ndarray, pixel_size: np.ndarray | int | float
 ) -> np.ndarray:
-    # return measurement_covariance_prime(Tco, pixel_size)
-    return measurement_covariance_prime_size_independent(Tco, pixel_size)
+    return measurement_covariance_prime(Tco, pixel_size)
+    # return measurement_covariance_prime_size_independent(Tco, pixel_size)
     # return measurement_covariance_camera_frame(Tco, pixel_size)
     # return measurement_covariance_isotropic_size_dependent(Tco, pixel_size)
     # return measurement_covariance_isotropic_size_independent(Tco, pixel_size)
