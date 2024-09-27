@@ -17,8 +17,8 @@ import shutil
 import multiprocessing
 
 METHOD_BACKBONE = 'cosy_'
-# COMMENT = 'synt_real_0.0_threshold_'
-COMMENT = 'synt_real_0.0_threshold_noreject_'
+COMMENT = 'synt_real_0.0_threshold_'
+# COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope

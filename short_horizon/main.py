@@ -17,13 +17,14 @@ import multiprocessing
 import shutil
 
 METHOD_BACKBONE = 'cosy_'
-COMMENT = 'synt_real_0.0_threshold_noreject_'
+COMMENT = 'synt_real_0.0_threshold_'
+# COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
 # METHOD_BACKBONE = ''
 # COMMENT = ''
-
+SAVE_CSV_COMMENT = '-new-gt'
 def load_data(path: Path):
     print('reading data from ', str(path))
     with open(path, 'rb') as file:
@@ -244,7 +245,7 @@ if __name__ == "__main__":
                                             
                                             
                                             
-                                            output_name = f'samshorthorizon_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{mod}_{str(sam_settings)}_.csv'
+                                            output_name = f'samshorthorizon{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{mod}_{str(sam_settings)}_.csv'
 
                                             # pool.apply_async(anotate_dataset_parallel_safe, args=(dataset_type, DATASETS_PATH/DATASET_NAME, datasets, sam_settings, output_name))
                                             anotate_dataset_parallel_safe(dataset_type, DATASETS_PATH/DATASET_NAME, datasets, sam_settings, output_name)
