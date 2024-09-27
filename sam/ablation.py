@@ -15,6 +15,12 @@ import copy
 import os
 import shutil
 import multiprocessing
+import argparse
+
+parser = argparse.ArgumentParser(description='Create Configuration')
+parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
+
+args = parser.parse_args()
 
 METHOD_BACKBONE = 'cosy_'
 COMMENT = 'synt_real_0.0_threshold_'
@@ -153,7 +159,7 @@ def main():
     # scenes = [0]
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-    which_modality = 'dynamic'  # 'static', 'dynamic'
+    which_modality = 'dynamic' if args.dynamic else 'static' # 'static', 'dynamic'
 
     pool = multiprocessing.Pool(processes=15)
 
