@@ -22,15 +22,15 @@ parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 
-METHOD_BACKBONE = 'cosy_'
-COMMENT = 'synt_real_0.0_threshold_'
+# METHOD_BACKBONE = 'cosy_'
+# COMMENT = 'synt_real_0.0_threshold_'
 # COMMENT = 'synt_real_0.0_threshold_noreject_'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-# METHOD_BACKBONE = ''
-# COMMENT = ''
-SAVE_CSV_COMMENT = '-new-gt'
+METHOD_BACKBONE = ''
+COMMENT = ''
+SAVE_CSV_COMMENT = '-measurement-covariance-prime-size-independent'
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
@@ -138,8 +138,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
-    DATASET_NAME = "ycbv"
-    # DATASET_NAME = "hopeVideo"
+    # DATASET_NAME = "ycbv"
+    DATASET_NAME = "hopeVideo"
     DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
 
     scenes_dict = {

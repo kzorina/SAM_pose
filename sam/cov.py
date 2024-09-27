@@ -36,9 +36,10 @@ def measurement_covariance(
     Tco: np.ndarray, pixel_size: np.ndarray | int | float
 ) -> np.ndarray:
     # return measurement_covariance_prime(Tco, pixel_size)
+    return measurement_covariance_prime_size_independent(Tco, pixel_size)
     # return measurement_covariance_camera_frame(Tco, pixel_size)
     # return measurement_covariance_isotropic_size_dependent(Tco, pixel_size)
-    return measurement_covariance_isotropic_size_independent(Tco, pixel_size)
+    # return measurement_covariance_isotropic_size_independent(Tco, pixel_size)
 
 
 def measurement_covariance_prime(
@@ -52,6 +53,27 @@ def measurement_covariance_prime(
     var_xy = exponential_function(pixel_size, *params_xy) ** 2
     var_z = exponential_function(pixel_size, *params_z) ** 2
     var_angle = exponential_function(pixel_size, *params_angle) ** 2
+
+    cov_trans_cam_aligned = np.diag([var_xy, var_xy, var_z])
+    rot = rotation_that_transforms_a_to_b([0, 0, 1], Tco[:3, 3])
+    cov_trans_c = rot @ cov_trans_cam_aligned @ rot.T  # cov[AZ] = A cov[Z] A^T
+    rot = Tco[:3, :3].T
+    cov_trans_o = rot @ cov_trans_c @ rot.T  # cov[AZ] = A cov[Z] A^T
+
+    cov_o = np.zeros((6, 6))
+    cov_o[:3, :3] = np.diag([var_angle] * 3)
+    cov_o[3:6, 3:6] = cov_trans_o
+    return cov_o
+
+def measurement_covariance_prime_size_independent(
+        Tco: np.ndarray, pixel_size: np.ndarray | int | float
+) -> np.ndarray:
+    std_xy = 0.001089558355755228
+    std_z = 0.018276873306908806
+    std_rot = 0.11020916669808396
+    var_xy = std_xy ** 2
+    var_z = std_z ** 2
+    var_angle = std_rot ** 2
 
     cov_trans_cam_aligned = np.diag([var_xy, var_xy, var_z])
     rot = rotation_that_transforms_a_to_b([0, 0, 1], Tco[:3, 3])
