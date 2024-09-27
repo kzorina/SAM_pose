@@ -22,15 +22,16 @@ parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 
-# METHOD_BACKBONE = 'cosy_'
+METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
-# COMMENT = 'synt_real_0.0_threshold_noreject_'
+COMMENT = 'synt_real_0.0_threshold_noreject_'
+SAVE_CSV_COMMENT = 'search-parameters'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = ''
 # for hope
-METHOD_BACKBONE = ''
-COMMENT = ''
-SAVE_CSV_COMMENT = '-measurement-covariance-prime-size-independent'
+# METHOD_BACKBONE = ''
+# COMMENT = ''
+# SAVE_CSV_COMMENT = '-measurement-covariance-prime-size-independent'
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
@@ -115,14 +116,15 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1.]:
-    # for tvt in [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
+    # for tvt in [1.]:
+    for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
         # for rvt in [1]:
         # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
         forked_params = copy.deepcopy(params) 
         forked_params.t_validity_treshold = tvt
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
-        rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
+        rvt_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
+        # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         for rvt in rvt_list: # precision oriented, recall oriented for static
@@ -138,8 +140,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
-    # DATASET_NAME = "ycbv"
-    DATASET_NAME = "hopeVideo"
+    DATASET_NAME = "ycbv"
+    # DATASET_NAME = "hopeVideo"
     DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
 
     scenes_dict = {
