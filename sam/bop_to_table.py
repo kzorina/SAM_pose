@@ -43,7 +43,7 @@ SAVE_CSV_COMMENT = 'search-parameters'
 DATASET_NAME = 'ycbv'
 # METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
-which_modality = 'dynamic'  # 'static', 'dynamic'
+which_modality = 'static'  # 'static', 'dynamic'
 metrics = ['ad', 'adi']
 
 if which_modality == 'static':
