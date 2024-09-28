@@ -36,11 +36,15 @@ def display_table(data_dict, col_width=10):
 
 # Variant 2: load from bop saved logs
 bop_log_dir = Path('/home/ros/kzorina/vojtas/bop_eval')
-DATASET_NAME = 'ycbv'
 METHOD_BACKBONE = 'cosy_'
-COMMENT = 'synt_real_0.0_threshold_'
+# COMMENT = 'synt_real_0.0_threshold_'
+COMMENT = 'synt_real_0.0_threshold_noreject_'
+SAVE_CSV_COMMENT = 'search-parameters'
+DATASET_NAME = 'ycbv'
+# METHOD_BACKBONE = 'cosy_'
+# COMMENT = 'synt_real_0.0_threshold_'
 which_modality = 'dynamic'  # 'static', 'dynamic'
-metrics = ['ad', 'adi', 'add']
+metrics = ['ad', 'adi']
 
 if which_modality == 'static':
     base_params = GlobalParams(
@@ -62,23 +66,30 @@ elif which_modality == 'dynamic':
                         R_validity_treshold=0.00075,
                         max_derivative_order=1,
                         reject_overlaps=0.05)
-recall_data = {}
-precision_data = {}
-for tvt in [1, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
-    for rvt in [1, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]:
+# recall_data = {}
+# precision_data = {}
+metric_save = {}
+for metric in metrics:
+    metric_save[metric] = {}
+for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
+    for rvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
         base_params.R_validity_treshold = rvt
         base_params.t_validity_treshold = tvt
-        eval_dir = f'gtsam_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
+        eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
         if not pathlib.Path(scores).exists():
             print("Folder does not exist: ", eval_dir)
             continue
         data = json.load(open(scores))
-        recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
-        precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
-
-print("Recall results")
-display_table(recall_data)
-print("Precision results")
-display_table(precision_data)
+        for metric in metrics:
+            metric_save[metric][(tvt, rvt)] = data['bop19_average_recall_' + metric]
+        # recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
+        # precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
+for metric in metrics:
+    print(f"{metric} results")
+    display_table(metric_save[metric])
+# print("Recall results")
+# display_table(recall_data)
+# print("Precision results")
+# display_table(precision_data)
