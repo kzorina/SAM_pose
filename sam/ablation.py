@@ -22,12 +22,13 @@ parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 
-METHOD_BACKBONE = 'cosy_'
+# METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
-COMMENT = 'synt_real_0.0_threshold_noreject_'
-SAVE_CSV_COMMENT = 'search-parameters2'
-# METHOD_BACKBONE = 'mega_'
-# COMMENT = ''
+# COMMENT = 'synt_real_0.0_threshold_noreject_'
+# SAVE_CSV_COMMENT = 'search-parameters2'
+METHOD_BACKBONE = 'mega_'
+COMMENT = '0.7-threshold'
+SAVE_CSV_COMMENT = ''
 # for hope
 # METHOD_BACKBONE = ''
 # COMMENT = ''
@@ -116,30 +117,31 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    # for tvt in [1.]:
-    outlier_rejection_treshold_trans = 0.10,
-    outlier_rejection_treshold_rot = 10 * np.pi / 180,
-    for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-    # for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-        # for rvt in [1]:
+    for tvt in [1.]:
+        # outlier_rejection_treshold_trans = 0.10,
+        # outlier_rejection_treshold_rot = 10 * np.pi / 180,
+        # for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
+        # for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
+        #     for rvt in [1]:
         # for rvt in [0.006,0.003,0.00263,0.00225,0.00187,0.00165,0.0015,0.00113,0.000937,0.00075,0.000563,0.000375,0.000188]
         forked_params = copy.deepcopy(params) 
-        forked_params.outlier_rejection_treshold_trans = ortt
-        # forked_params.t_validity_treshold = tvt
+        # forked_params.outlier_rejection_treshold_trans = ortt
+        forked_params.t_validity_treshold = tvt
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
-        ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
+        # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
         # rvt_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
-        for ortr in ortr_list:
+        # for ortr in ortr_list:
         # for rvt in rvt_list: # precision oriented, recall oriented for static
+        for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
             # forked_params.R_validity_treshold = params.R_validity_treshold * rvt
             # forked_params.t_validity_treshold = params.t_validity_treshold * tvt
-            forked_params.outlier_rejection_treshold_rot = ortr
-            # forked_params.R_validity_treshold = rvt
+            # forked_params.outlier_rejection_treshold_rot = ortr
+            forked_params.R_validity_treshold = rvt
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
@@ -147,8 +149,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
-    DATASET_NAME = "ycbv"
-    # DATASET_NAME = "hopeVideo"
+    # DATASET_NAME = "ycbv"
+    DATASET_NAME = "hopeVideo"
     DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
 
     scenes_dict = {
