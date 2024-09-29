@@ -130,12 +130,12 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
         # rvt_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
-        # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
+        rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         # for ortr in ortr_list:
-        # for rvt in rvt_list: # precision oriented, recall oriented for static
-        for rvt in [1]: # precision oriented, recall oriented for static
+        for rvt in rvt_list: # precision oriented, recall oriented for static
+        # for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
             # forked_params.R_validity_treshold = params.R_validity_treshold * rvt
