@@ -39,7 +39,7 @@ bop_log_dir = Path('/home/ros/kzorina/vojtas/bop_eval')
 METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
 COMMENT = 'synt_real_0.0_threshold_noreject_'
-SAVE_CSV_COMMENT = 'search-parameters'
+SAVE_CSV_COMMENT = 'search-parameters2'
 DATASET_NAME = 'ycbv'
 # METHOD_BACKBONE = 'cosy_'
 # COMMENT = 'synt_real_0.0_threshold_'
@@ -52,8 +52,10 @@ if which_modality == 'static':
                         cov_drift_ang_vel=0.0000001,
                         outlier_rejection_treshold_trans = 0.10,
                         outlier_rejection_treshold_rot = 10*np.pi/180,
-                        t_validity_treshold=0.000025,
-                        R_validity_treshold=0.00075,
+                        t_validity_treshold=1.,
+                        R_validity_treshold=1.,
+                        # t_validity_treshold=0.000025,
+                        # R_validity_treshold=0.00075,
                         max_derivative_order=0,
                         reject_overlaps=0.05)
 elif which_modality == 'dynamic':
@@ -71,10 +73,12 @@ elif which_modality == 'dynamic':
 metric_save = {}
 for metric in metrics:
     metric_save[metric] = {}
-for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-    for rvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-        base_params.R_validity_treshold = rvt
-        base_params.t_validity_treshold = tvt
+for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
+    for ortr in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
+        # base_params.R_validity_treshold = rvt
+        # base_params.t_validity_treshold = tvt
+        base_params.outlier_rejection_treshold_trans = ortt
+        base_params.outlier_rejection_treshold_rot = ortr
         eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
@@ -83,7 +87,7 @@ for tvt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
             continue
         data = json.load(open(scores))
         for metric in metrics:
-            metric_save[metric][(tvt, rvt)] = data['bop19_average_recall_' + metric]
+            metric_save[metric][(ortt, ortr)] = data['bop19_average_recall_' + metric]
         # recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
         # precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
 for metric in metrics:
