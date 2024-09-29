@@ -27,7 +27,7 @@ args = parser.parse_args()
 # COMMENT = 'synt_real_0.0_threshold_noreject_'
 # SAVE_CSV_COMMENT = 'search-parameters2'
 METHOD_BACKBONE = 'mega_'
-COMMENT = '0.7-threshold'
+COMMENT = '0.7-threshold_'
 SAVE_CSV_COMMENT = ''
 # for hope
 # METHOD_BACKBONE = ''
