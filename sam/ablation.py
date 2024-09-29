@@ -26,12 +26,12 @@ args = parser.parse_args()
 # COMMENT = 'synt_real_0.0_threshold_'
 # COMMENT = 'synt_real_0.0_threshold_noreject_'
 # SAVE_CSV_COMMENT = 'search-parameters2'
-METHOD_BACKBONE = 'mega_'
-COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = ''
+# METHOD_BACKBONE = 'mega_'
+# COMMENT = '0.7-threshold_'
+SAVE_CSV_COMMENT = 'const-acceleration'
 # for hope
-# METHOD_BACKBONE = ''
-# COMMENT = ''
+METHOD_BACKBONE = ''
+COMMENT = ''
 # SAVE_CSV_COMMENT = '-measurement-covariance-prime-size-independent'
 def __refresh_dir(path):
     """
@@ -171,6 +171,9 @@ def main():
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
     which_modality = 'dynamic' if args.dynamic else 'static' # 'static', 'dynamic'
+    if 'accel' in SAVE_CSV_COMMENT:
+        which_modality = 'accel'
+        print("RUNNING acceleration model")
 
     pool = multiprocessing.Pool(processes=15)
 
@@ -196,6 +199,16 @@ def main():
                                 t_validity_treshold=0.000005,
                                 R_validity_treshold=0.00075,
                                 max_derivative_order=1,
+                                reject_overlaps=0.05)
+    elif which_modality == 'accel':
+        base_params = GlobalParams(
+                                cov_drift_lin_vel=0.1,
+                                cov_drift_ang_vel=1,
+                                outlier_rejection_treshold_trans=0.10,
+                                outlier_rejection_treshold_rot=10*np.pi/180,
+                                t_validity_treshold=0.000005,
+                                R_validity_treshold=0.00075,
+                                max_derivative_order=2,
                                 reject_overlaps=0.05)
     else:
         raise ValueError(f"Unknown modality {which_modality}")
