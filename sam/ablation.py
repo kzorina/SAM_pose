@@ -16,6 +16,7 @@ import os
 import shutil
 import multiprocessing
 import argparse
+from consts import HOPE_OBJECT_NAME_TO_ID
 
 parser = argparse.ArgumentParser(description='Create Configuration')
 parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
@@ -28,11 +29,19 @@ args = parser.parse_args()
 # SAVE_CSV_COMMENT = 'search-parameters2'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = 'baseline'
+SAVE_CSV_COMMENT = 'change-rejection-to-radius'
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
 # SAVE_CSV_COMMENT = '-measurement-covariance-prime-size-independent'
+
+DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
+# DATASET_NAME = "ycbv"
+DATASET_NAME = "hopeVideo"
+# DATASET_NAME = "SynthDynamicOcclusion"
+model_info = json.load(open(DATASETS_PATH / DATASET_NAME / 'models/models_info.json'))
+obj_radius = {k: v['diameter'] / 2 for k, v in model_info.items()}
+OBJECT_NAME_TO_ID = HOPE_OBJECT_NAME_TO_ID if DATASET_NAME == 'hopeVideo' else None
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
@@ -58,13 +67,17 @@ def recalculate_validity(results, t_validity_treshold, R_validity_treshold, reje
                     T_wo = track["T_wo"]
                     Q = track["Q"]
                     #  remove overlapping discrete symmetries
-                    if validity and reject_overlaps > 0:
+                    if validity and reject_overlaps > 0 or reject_overlaps == -1:  # -1 corresponds to adaptive
+                        if reject_overlaps == -1:
+                            float_reject_overlap = obj_radius[OBJECT_NAME_TO_ID[obj_label]]
+                        else:
+                            float_reject_overlap = reject_overlaps
                         for obj_inst in range(len(entry[obj_label])):
                             if entry[obj_label][obj_inst]["valid"]:
                                 other_T_wo = entry[obj_label][obj_inst]["T_wo"]
                                 other_Q = entry[obj_label][obj_inst]["Q"]
                                 dist = np.linalg.norm(T_wo[:3, 3] - other_T_wo[:3, 3])
-                                if dist < reject_overlaps:
+                                if dist < float_reject_overlap:
                                     if np.linalg.det(Q) > np.linalg.det(other_Q):
                                         validity = False
                                     else:
@@ -149,10 +162,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
-    # DATASET_NAME = "ycbv"
-    DATASET_NAME = "hopeVideo"
-    # DATASET_NAME = "SynthDynamicOcclusion"
-    DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
+
+    
 
     scenes_dict = {
         'hopeVideo': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -161,6 +172,8 @@ def main():
     }
     start_time = time.time()
     dataset_type = "ycbv" if DATASET_NAME == 'ycbv' else "hope"
+    # reject_overlaps = 0.05
+    reject_overlaps = -1
     # dataset_type = "hope"
 
     # DATASET_NAME = "SynthDynamicOcclusion"
@@ -191,7 +204,7 @@ def main():
                                 # t_validity_treshold=0.000025,
                                 # R_validity_treshold=0.00075,
                                 max_derivative_order=0,
-                                reject_overlaps=0.05)
+                                reject_overlaps=reject_overlaps)
     elif which_modality == 'dynamic':
         base_params = GlobalParams(
                                 cov_drift_lin_vel=0.1,
@@ -201,7 +214,7 @@ def main():
                                 t_validity_treshold=0.000005,
                                 R_validity_treshold=0.00075,
                                 max_derivative_order=1,
-                                reject_overlaps=0.05)
+                                reject_overlaps=reject_overlaps)
     elif which_modality == 'accel':
         base_params = GlobalParams(
                                 cov_drift_lin_vel=0.1,
@@ -211,7 +224,7 @@ def main():
                                 t_validity_treshold=0.000005,
                                 R_validity_treshold=0.00075,
                                 max_derivative_order=2,
-                                reject_overlaps=0.05)
+                                reject_overlaps=reject_overlaps)
     else:
         raise ValueError(f"Unknown modality {which_modality}")
     # to not reject anything
