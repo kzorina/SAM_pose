@@ -28,7 +28,7 @@ args = parser.parse_args()
 # SAVE_CSV_COMMENT = 'search-parameters2'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = 'robust-cost-fun'
+SAVE_CSV_COMMENT = 'baseline'
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
