@@ -59,8 +59,8 @@ elif which_modality == 'dynamic':
                         R_validity_treshold=0.00075,
                         max_derivative_order=1,
                         reject_overlaps=0.05)
-# recall_data = {}
-# precision_data = {}
+recall_data = {}
+precision_data = {}
 metric_save = {}
 for metric in metrics:
     metric_save[metric] = {}
@@ -76,12 +76,12 @@ for obj_pose_noise_t_std in [0., 0.005, 0.01, 0.05, 0.1]:
         data = json.load(open(scores))
         for metric in metrics:
             metric_save[metric][(obj_pose_noise_t_std, obj_pose_noise_r_std)] = data['bop19_average_recall_' + metric]
-        # recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
-        # precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
-for metric in metrics:
-    print(f"{metric} results")
-    display_table(metric_save[metric])
-# print("Recall results")
-# display_table(recall_data)
-# print("Precision results")
-# display_table(precision_data)
+        recall_data[(obj_pose_noise_t_std, obj_pose_noise_r_std)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
+        precision_data[(obj_pose_noise_t_std, obj_pose_noise_r_std)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
+# for metric in metrics:
+#     print(f"{metric} results")
+#     display_table(metric_save[metric])
+print("Recall results")
+display_table(recall_data)
+print("Precision results")
+display_table(precision_data)
