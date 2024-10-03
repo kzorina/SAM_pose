@@ -35,7 +35,7 @@ METHOD_BACKBONE = ''
 COMMENT = ''
 DATASET_NAME = 'hopeVideo'
 which_modality = 'static'  # 'static', 'dynamic'
-metrics = ['vsd', 'mssd', 'msdp']
+metrics = ['vsd', 'mssd', 'mspd']
 
 if which_modality == 'static':
     base_params = GlobalParams(
