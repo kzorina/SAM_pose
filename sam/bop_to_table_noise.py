@@ -6,8 +6,8 @@ import numpy as np
 import json
 
 def display_table(data_dict, col_width=10):
-    row_names = sorted(list(set([t for (t, r) in data_dict.keys()])))
-    column_names = sorted(list(set([r for (t, r) in data_dict.keys()])))
+    column_names = sorted(list(set([t for (t, r) in data_dict.keys()])))
+    row_names = sorted(list(set([r for (t, r) in data_dict.keys()])))
 
     # Header row (column names in scientific notation)
     header = " " * col_width  # Empty space for the corner where row and column names meet
