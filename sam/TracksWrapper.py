@@ -147,7 +147,7 @@ class Track:
             derivatives[i-1, :] = self.get_derivative(i)
             Q_derivatives[i-1, :, :] = self.get_Q_derivative(i)
         bare_track = BareTrack(self.idx, T_wo, Q, derivatives, Q_derivatives, self.last_seen_time_stamp, self.extrapolate_func)
-        return bare_trackhuber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), triple_factor_noise)
+        return bare_track
 
     def get_highest_derivative_Q(self, dt):
         Q = np.eye(6)
