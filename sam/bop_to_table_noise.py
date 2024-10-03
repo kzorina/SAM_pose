@@ -67,7 +67,7 @@ for metric in metrics:
 for obj_pose_noise_t_std in [0., 0.005, 0.01, 0.05, 0.1]:
     for obj_pose_noise_r_std in [0., 0.01, 0.05, 0.1, 0.25]:
         SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
-        eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv''
+        eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}.csv'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
         if not pathlib.Path(scores).exists():
