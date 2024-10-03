@@ -43,17 +43,23 @@ DATASET_NAME = "hopeVideo"
 model_info = json.load(open(DATASETS_PATH / DATASET_NAME / 'models/models_info.json'))
 obj_radius = {k: v['diameter'] / 2 for k, v in model_info.items()}
 OBJECT_NAME_TO_ID = HOPE_OBJECT_NAME_TO_ID if DATASET_NAME == 'hopeVideo' else None
-OBJECT_POSE_NOISE_T_STD = 0.005
-OBJECT_POSE_NOISE_R_STD = 0.1
-SAVE_CSV_COMMENT = f'noisy-object-{OBJECT_POSE_NOISE_T_STD}-{OBJECT_POSE_NOISE_R_STD}'
+OBJECT_POSE_NOISE_T_STD = 0.01
+OBJECT_POSE_NOISE_R_STD = 0.25
+CAMERA_POSE_NOISE_T_STD = None
+CAMERA_POSE_NOISE_R_STD = None
+# CAMERA_POSE_NOISE_T_STD = 0.005
+# CAMERA_POSE_NOISE_R_STD = 0.1
 
-def apply_noise(pose):
+SAVE_CSV_COMMENT = f'noisy-object-{OBJECT_POSE_NOISE_T_STD}-{OBJECT_POSE_NOISE_R_STD}'
+# SAVE_CSV_COMMENT = f'noisy-camera-{CAMERA_POSE_NOISE_T_STD}-{CAMERA_POSE_NOISE_R_STD}'
+
+def apply_noise(pose, t_std, r_std):
     pose = pin.SE3(pose[:3, :3], pose[:3, 3])
     noise = np.zeros(6)
-    if OBJECT_POSE_NOISE_T_STD is not None:
-        noise[:3] = np.random.normal(0, OBJECT_POSE_NOISE_T_STD, 3 )  
-    if OBJECT_POSE_NOISE_R_STD is not None:
-        noise[3:] = np.random.normal(0, OBJECT_POSE_NOISE_R_STD, 3)  
+    if t_std is not None:
+        noise[:3] = np.random.normal(0, t_std, 3 )  
+    if r_std is not None:
+        noise[3:] = np.random.normal(0, r_std, 3)  
     pose_noisy = pose.act(pin.exp6(noise)) 
 
     return pose_noisy.homogeneous
@@ -112,13 +118,23 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams)
     for i in range(len(scene_camera)):  # iter over image_ids
         time_stamp = i/30  # time in secs if fps=30
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
+        if CAMERA_POSE_NOISE_T_STD is not None or CAMERA_POSE_NOISE_R_STD is not None:
+            breakpoint()
+            T_wc = apply_noise(T_wc,
+                                t_std=OBJECT_POSE_NOISE_T_STD,
+                                r_std=OBJECT_POSE_NOISE_R_STD
+                                )
         Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if OBJECT_POSE_NOISE_T_STD is not None or OBJECT_POSE_NOISE_R_STD is not None:
             for obj_label in detections.keys():
                 new_list = []
                 for el in detections[obj_label]:
-                    new_list.append({"T_co":apply_noise(el['T_co']), "Q":el['Q']})
+                    new_list.append({"T_co":apply_noise(el['T_co'],
+                                                        t_std=OBJECT_POSE_NOISE_T_STD,
+                                                        r_std=OBJECT_POSE_NOISE_R_STD
+                                                        ), 
+                                     "Q":el['Q']})
                 detections[obj_label] = new_list
 
         # add noise to object pose
