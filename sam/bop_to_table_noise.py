@@ -22,7 +22,7 @@ def display_table(data_dict, col_width=10):
         # Print row values
         for col in column_names:
             # (tvt, rvt): metric
-            value = data_dict.get((row, col), 0.0)
+            value = data_dict.get((col, row), 0.0)
             row_str += "{:10.2f}".format(value)  # Format the value to 2 decimal places
         # Print the entire row
         print(row_str)
