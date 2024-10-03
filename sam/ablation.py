@@ -29,7 +29,7 @@ args = parser.parse_args()
 # SAVE_CSV_COMMENT = 'search-parameters2'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = 'change-rejection-to-radius'
+SAVE_CSV_COMMENT = 'baseline'
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
@@ -172,8 +172,8 @@ def main():
     }
     start_time = time.time()
     dataset_type = "ycbv" if DATASET_NAME == 'ycbv' else "hope"
-    # reject_overlaps = 0.05
-    reject_overlaps = -1
+    reject_overlaps = 0.05
+    # reject_overlaps = -1
     # dataset_type = "hope"
 
     # DATASET_NAME = "SynthDynamicOcclusion"
