@@ -32,8 +32,8 @@ class Camera:
         self.num_detected += 1
         self.last_seen_time_stamp = time_stamp
         noise = gtsam.noiseModel.Gaussian.Covariance(Q)
-        breakpoint()
-        factor = gtsam.PriorFactorPose3(self.get_symbol(), gtsam.Pose3(T_wc), noise)
+        huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), noise)
+        factor = gtsam.PriorFactorPose3(self.get_symbol(), gtsam.Pose3(T_wc), huber_noise)
         self.parent.factor_graph.add_factor(factor)
         self.parent.factor_graph.insert_estimate(self.get_symbol(), T_wc)
         self.cached_attributes["T_wo_init"][0] = self.parent.update_stamp
@@ -147,7 +147,7 @@ class Track:
             derivatives[i-1, :] = self.get_derivative(i)
             Q_derivatives[i-1, :, :] = self.get_Q_derivative(i)
         bare_track = BareTrack(self.idx, T_wo, Q, derivatives, Q_derivatives, self.last_seen_time_stamp, self.extrapolate_func)
-        return bare_track
+        return bare_trackhuber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), triple_factor_noise)
 
     def get_highest_derivative_Q(self, dt):
         Q = np.eye(6)
@@ -176,8 +176,8 @@ class Track:
         self.num_detected += 1
 
         noise = gtsam.noiseModel.Gaussian.Covariance(Q)
-        breakpoint()
-        factor = gtsam.BetweenFactorPose3(self.parent.camera.get_symbol(), self.get_symbol(), T_co, noise)
+        huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), noise)
+        factor = gtsam.BetweenFactorPose3(self.parent.camera.get_symbol(), self.get_symbol(), T_co, huber_noise)
         self.parent.factor_graph.add_factor(factor)
         self.parent.factor_graph.insert_estimate(self.get_symbol(), T_wo)
         for order in range(1, self.max_order_derivative + 1):  # order=1...velocity, order=2...acceleration, order=3...jerk ...
@@ -187,11 +187,12 @@ class Track:
                 cov2[:3, :3] = np.eye(3) * self.parent.params.cov2_R
                 cov2[3:6, 3:6] = np.eye(3) * self.parent.params.cov2_t
                 triple_factor_noise = gtsam.noiseModel.Gaussian.Covariance(cov2)
+                huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), triple_factor_noise)
                 if order == 1:  # "velocity - velocity- acceleration" triple factor
                     error_func = partial(custom_odom_factors.error_velocity_integration_so3r3_global, dt)
                 else:  # Pose3 - Pose3 - velocity triple factor
                     error_func = partial(custom_odom_factors.error_derivative_integration_so3r3_global, dt)
-                factor = gtsam.CustomFactor(triple_factor_noise,[self.get_derivative_symbol(order-1) - 1,
+                factor = gtsam.CustomFactor(huber_noise,[self.get_derivative_symbol(order-1) - 1,
                                                                  self.get_derivative_symbol(order-1),
                                                                  self.get_derivative_symbol(order)],
                                                                  error_func)
@@ -199,23 +200,26 @@ class Track:
                 self.parent.factor_graph.insert_estimate(self.get_derivative_symbol(order), np.zeros((6)))  # TODO: use better estimate
                 if self.num_detected == order + 1:
                     bogus_noise = gtsam.noiseModel.Isotropic.Sigma(6, self.parent.params.velocity_prior_sigma)
-                    self.parent.factor_graph.add_factor(gtsam.PriorFactorVector(self.get_derivative_symbol(order), np.zeros((6)), bogus_noise))
+                    huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), bogus_noise)
+                    self.parent.factor_graph.add_factor(gtsam.PriorFactorVector(self.get_derivative_symbol(order), np.zeros((6)), huber_noise))
 
         if self.num_detected > self.max_order_derivative + 1:  # the highest order derivative between factor is ready to be added
             if self.max_order_derivative == 0:    # const pose model - the between factor is of type Pose3
                 dt = time_stamp - self.last_seen_time_stamp
                 between_noise = gtsam.noiseModel.Gaussian.Covariance(self.get_highest_derivative_Q(dt))
+                huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), between_noise)
                 self.parent.factor_graph.add_factor(gtsam.BetweenFactorPose3(self.get_derivative_symbol(self.max_order_derivative) - 1,
                                                                               self.get_derivative_symbol(self.max_order_derivative),
                                                                               gtsam.Pose3(np.eye(4)),
-                                                                              between_noise))
+                                                                              huber_noise))
             else:    # the between factor is of type Vector
                 dt = time_stamp - self.last_seen_time_stamp
                 between_noise = gtsam.noiseModel.Gaussian.Covariance(self.get_highest_derivative_Q(dt))
+                huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(1.5), between_noise)
                 self.parent.factor_graph.add_factor(gtsam.BetweenFactorVector(self.get_derivative_symbol(self.max_order_derivative) - 1,
                                                                               self.get_derivative_symbol(self.max_order_derivative),
                                                                               np.zeros(6),
-                                                                              between_noise))
+                                                                              huber_noise))
 
         self.last_seen_time_stamp = time_stamp
         self.parent.last_time_stamp = time_stamp
