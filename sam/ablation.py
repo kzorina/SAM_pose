@@ -17,6 +17,7 @@ import shutil
 import multiprocessing
 import argparse
 from consts import HOPE_OBJECT_NAME_TO_ID
+import pinocchio as pin
 
 parser = argparse.ArgumentParser(description='Create Configuration')
 parser.add_argument('--dynamic', action=argparse.BooleanOptionalAction)
@@ -29,7 +30,7 @@ args = parser.parse_args()
 # SAVE_CSV_COMMENT = 'search-parameters2'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = 'baseline'
+
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
@@ -42,6 +43,21 @@ DATASET_NAME = "hopeVideo"
 model_info = json.load(open(DATASETS_PATH / DATASET_NAME / 'models/models_info.json'))
 obj_radius = {k: v['diameter'] / 2 for k, v in model_info.items()}
 OBJECT_NAME_TO_ID = HOPE_OBJECT_NAME_TO_ID if DATASET_NAME == 'hopeVideo' else None
+OBJECT_POSE_NOISE_T_STD = 0.005
+OBJECT_POSE_NOISE_R_STD = 0.1
+SAVE_CSV_COMMENT = f'noisy-object-{OBJECT_POSE_NOISE_T_STD}-{OBJECT_POSE_NOISE_R_STD}'
+
+def apply_noise(pose):
+    pose = pin.SE3(pose[:3, :3], pose[:3, 3])
+    noise = np.zeros(6)
+    if OBJECT_POSE_NOISE_T_STD is not None:
+        noise[:3] = np.random.normal(0, OBJECT_POSE_NOISE_T_STD, 3 )  
+    if OBJECT_POSE_NOISE_R_STD is not None:
+        noise[3:] = np.random.normal(0, OBJECT_POSE_NOISE_R_STD, 3)  
+    pose_noisy = pose.act(pin.exp6(noise)) 
+
+    return pose_noisy.homogeneous
+
 def __refresh_dir(path):
     """
     Wipes a directory and all its content if it exists. Creates a new empty one.
@@ -98,6 +114,14 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams)
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
         Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
+        if OBJECT_POSE_NOISE_T_STD is not None or OBJECT_POSE_NOISE_R_STD is not None:
+            for obj_label in detections.keys():
+                new_list = []
+                for el in detections[obj_label]:
+                    new_list.append({"T_co":apply_noise(el['T_co']), "Q":el['Q']})
+                detections[obj_label] = new_list
+
+        # add noise to object pose
         sam.insert_detections({"T_wc":T_wc, "Q":Q_T_wc}, detections, time_stamp)
         current_state = sam.get_state()
         # animate_state(current_state, time_stamp)
@@ -173,7 +197,7 @@ def main():
     start_time = time.time()
     dataset_type = "ycbv" if DATASET_NAME == 'ycbv' else "hope"
     reject_overlaps = 0.05
-    # reject_overlaps = -1
+    # reject_overlaps = -1  # for radius based overlap threshold
     # dataset_type = "hope"
 
     # DATASET_NAME = "SynthDynamicOcclusion"
