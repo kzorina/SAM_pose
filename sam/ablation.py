@@ -43,14 +43,9 @@ DATASET_NAME = "hopeVideo"
 model_info = json.load(open(DATASETS_PATH / DATASET_NAME / 'models/models_info.json'))
 obj_radius = {k: v['diameter'] / 2 for k, v in model_info.items()}
 OBJECT_NAME_TO_ID = HOPE_OBJECT_NAME_TO_ID if DATASET_NAME == 'hopeVideo' else None
-OBJECT_POSE_NOISE_T_STD = 0.01
-OBJECT_POSE_NOISE_R_STD = 0.25
-CAMERA_POSE_NOISE_T_STD = None
-CAMERA_POSE_NOISE_R_STD = None
+
 # CAMERA_POSE_NOISE_T_STD = 0.005
 # CAMERA_POSE_NOISE_R_STD = 0.1
-
-SAVE_CSV_COMMENT = f'noisy-object-{OBJECT_POSE_NOISE_T_STD}-{OBJECT_POSE_NOISE_R_STD}'
 # SAVE_CSV_COMMENT = f'noisy-camera-{CAMERA_POSE_NOISE_T_STD}-{CAMERA_POSE_NOISE_R_STD}'
 
 def apply_noise(pose, t_std, r_std):
@@ -112,27 +107,32 @@ def recalculate_validity(results, t_validity_treshold, R_validity_treshold, reje
     return recalculated_results
 
 
-def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams):
+def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
+                obj_pose_noise_t_std=None,
+                obj_pose_noise_r_std=None,
+                cam_pose_noise_t_std=None,
+                cam_pose_noise_r_std=None,):
     sam = SamWrapper(params)
     refined_scene = []
     for i in range(len(scene_camera)):  # iter over image_ids
         time_stamp = i/30  # time in secs if fps=30
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
-        if CAMERA_POSE_NOISE_T_STD is not None or CAMERA_POSE_NOISE_R_STD is not None:
-            breakpoint()
+        if cam_pose_noise_t_std is not None or cam_pose_noise_r_std is not None:
+            # breakpoint()
             T_wc = apply_noise(T_wc,
-                                t_std=OBJECT_POSE_NOISE_T_STD,
-                                r_std=OBJECT_POSE_NOISE_R_STD
+                                t_std=obj_pose_noise_t_std,
+                                r_std=obj_pose_noise_r_std
                                 )
         Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
-        if OBJECT_POSE_NOISE_T_STD is not None or OBJECT_POSE_NOISE_R_STD is not None:
+        if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
+            breakpoint()
             for obj_label in detections.keys():
                 new_list = []
                 for el in detections[obj_label]:
                     new_list.append({"T_co":apply_noise(el['T_co'],
-                                                        t_std=OBJECT_POSE_NOISE_T_STD,
-                                                        r_std=OBJECT_POSE_NOISE_R_STD
+                                                        t_std=obj_pose_noise_t_std,
+                                                        r_std=obj_pose_noise_r_std
                                                         ), 
                                      "Q":el['Q']})
                 detections[obj_label] = new_list
@@ -147,17 +147,33 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams)
         print(f"\r({(i + 1)}/{len(scene_camera)})", end='')
     return refined_scene
 
-def refine_scene(scene_path, params):
+def refine_scene(scene_path, params,
+                obj_pose_noise_t_std=None,
+                obj_pose_noise_r_std=None,
+                cam_pose_noise_t_std=None,
+                cam_pose_noise_r_std=None,):
     print('refining scene ', scene_path)
     scene_camera = load_scene_camera(scene_path / "scene_camera.json")
     frames_prediction = load_pickle(scene_path / f"{METHOD_BACKBONE}{COMMENT}frames_prediction.p")
     px_counts = load_pickle(scene_path / f"{METHOD_BACKBONE}{COMMENT}frames_px_counts.p")
     # frames_prediction = load_pickle(scene_path / "frames_prediction.p")
     # px_counts = load_pickle(scene_path / "frames_px_counts.p")
-    refined_scene = refine_data(scene_camera, frames_prediction, px_counts, params)
+    refined_scene = refine_data(scene_camera, frames_prediction, px_counts, params,
+                                obj_pose_noise_t_std=obj_pose_noise_t_std,
+                                obj_pose_noise_r_std=obj_pose_noise_r_std,
+                                cam_pose_noise_t_std=cam_pose_noise_t_std,
+                            cam_pose_noise_r_std=cam_pose_noise_r_std,)
     return refined_scene
 
-def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='hope', which_modality='static', load_scene=False):
+def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, 
+                    params, 
+                    dataset_type='hope', 
+                    obj_pose_noise_t_std=None,
+                    obj_pose_noise_r_std=None,
+                    cam_pose_noise_t_std=None,
+                    cam_pose_noise_r_std=None,
+                    which_modality='static', 
+                    load_scene=False):
     results = {}
     print(f"scenes: {scenes}")
     for scene_num in scenes:
@@ -166,7 +182,11 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'rb') as file:
                 refined_scene = pickle.load(file)
         else:
-            refined_scene = refine_scene(scene_path, params)
+            refined_scene = refine_scene(scene_path, params,
+                                         obj_pose_noise_t_std=obj_pose_noise_t_std,
+                                         obj_pose_noise_r_std=obj_pose_noise_r_std,
+                                         cam_pose_noise_t_std=cam_pose_noise_t_std,
+                            cam_pose_noise_r_std=cam_pose_noise_r_std,)
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
@@ -183,11 +203,12 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
         # rvt_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
-        rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
+        # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         # for ortr in ortr_list:
-        for rvt in rvt_list: # precision oriented, recall oriented for static
+        # for rvt in rvt_list: # precision oriented, recall oriented for static
+        for rvt in [0.00012]: # precision oriented, recall oriented for static
         # for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
@@ -197,6 +218,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
             forked_params.R_validity_treshold = rvt
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
+            # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
+            SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
@@ -226,9 +249,9 @@ def main():
     # DATASET_NAME = "ycbv_test_bop19"
     # scenes = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
     which_modality = 'dynamic' if args.dynamic else 'static' # 'static', 'dynamic'
-    if 'accel' in SAVE_CSV_COMMENT:
-        which_modality = 'accel'
-        print("RUNNING acceleration model")
+    # if 'accel' in SAVE_CSV_COMMENT:
+    #     which_modality = 'accel'
+    #     print("RUNNING acceleration model")
 
     pool = multiprocessing.Pool(processes=15)
 
@@ -271,8 +294,21 @@ def main():
     if 'noreject' in COMMENT:
         base_params.reject_overlaps = 0
     forked_params = copy.deepcopy(base_params)
-    anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality,
-                    load_scene=False)
+    obj_pose_noise_t_std = None
+    obj_pose_noise_r_std = None
+    cam_pose_noise_t_std = None
+    cam_pose_noise_r_std = None
+
+    for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.05, 0.1]:
+        for cam_pose_noise_r_std in [0., 0.01, 0.05, 0.1, 0.25]:
+            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, 
+                            dataset_type=dataset_type, 
+                            obj_pose_noise_t_std=obj_pose_noise_t_std,
+                            obj_pose_noise_r_std=obj_pose_noise_r_std,
+                            cam_pose_noise_t_std=cam_pose_noise_t_std,
+                            cam_pose_noise_r_std=cam_pose_noise_r_std,
+                            which_modality=which_modality,
+                            load_scene=False)
     # for trans in [1]:
     #     for rot in [1]:
     #         forked_params = copy.deepcopy(base_params)
