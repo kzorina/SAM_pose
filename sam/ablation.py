@@ -28,7 +28,7 @@ args = parser.parse_args()
 # SAVE_CSV_COMMENT = 'search-parameters2'
 # METHOD_BACKBONE = 'mega_'
 # COMMENT = '0.7-threshold_'
-SAVE_CSV_COMMENT = 'const-acceleration-synth-dynamic'
+SAVE_CSV_COMMENT = 'robust-cost-fun'
 # for hope
 METHOD_BACKBONE = ''
 COMMENT = ''
@@ -150,8 +150,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, params, dataset_type='h
 
 def main():
     # DATASET_NAME = "ycbv"
-    # DATASET_NAME = "hopeVideo"
-    DATASET_NAME = "SynthDynamicOcclusion"
+    DATASET_NAME = "hopeVideo"
+    # DATASET_NAME = "SynthDynamicOcclusion"
     DATASETS_PATH = Path("/home/ros/kzorina/vojtas")
 
     scenes_dict = {

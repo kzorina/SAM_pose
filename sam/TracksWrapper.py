@@ -32,6 +32,7 @@ class Camera:
         self.num_detected += 1
         self.last_seen_time_stamp = time_stamp
         noise = gtsam.noiseModel.Gaussian.Covariance(Q)
+        breakpoint()
         factor = gtsam.PriorFactorPose3(self.get_symbol(), gtsam.Pose3(T_wc), noise)
         self.parent.factor_graph.add_factor(factor)
         self.parent.factor_graph.insert_estimate(self.get_symbol(), T_wc)
@@ -175,6 +176,7 @@ class Track:
         self.num_detected += 1
 
         noise = gtsam.noiseModel.Gaussian.Covariance(Q)
+        breakpoint()
         factor = gtsam.BetweenFactorPose3(self.parent.camera.get_symbol(), self.get_symbol(), T_co, noise)
         self.parent.factor_graph.add_factor(factor)
         self.parent.factor_graph.insert_estimate(self.get_symbol(), T_wo)

@@ -43,6 +43,7 @@ class FactorGraphWrapper:
                 T_wo = track.get_T_wo_init()
                 Q = track.get_Q_derivative(0)
                 noise = gtsam.noiseModel.Gaussian.Covariance(Q)
+                breakpoint()
                 new_graph.add(gtsam.PriorFactorPose3(track.get_symbol(), T_wo, noise))
                 initial_estimate.insert(track.get_symbol(), T_wo)
                 for derivative_symbol in track.get_active_derivative_symbols():
