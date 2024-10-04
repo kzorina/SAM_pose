@@ -176,7 +176,7 @@ class Track:
 
         noise = gtsam.noiseModel.Gaussian.Covariance(Q)
         # factor = gtsam.BetweenFactorPose3(self.parent.camera.get_symbol(), self.get_symbol(), T_co, noise)
-        huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(0.05), noise)
+        huber_noise = gtsam.noiseModel.Robust.Create(gtsam.noiseModel.mEstimator.Huber.Create(0.1), noise)
         factor = gtsam.BetweenFactorPose3(self.parent.camera.get_symbol(), self.get_symbol(), T_co, huber_noise)
         self.parent.factor_graph.add_factor(factor)
         self.parent.factor_graph.insert_estimate(self.get_symbol(), T_wo)

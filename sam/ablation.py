@@ -220,7 +220,7 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
-            SAVE_CSV_COMMENT = f'huber-noise-0.05'
+            SAVE_CSV_COMMENT = f'huber-noise-0.1'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
