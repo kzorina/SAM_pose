@@ -81,6 +81,7 @@ def recalculate_validity(results, t_validity_treshold, R_validity_treshold, reje
                     track = copy.deepcopy(refined_scene[frame][obj_label][obj_idx])
 
                     validity = State.is_valid(track["Q"], t_validity_treshold, R_validity_treshold)
+                    breakpoint()
                     T_wo = track["T_wo"]
                     Q = track["Q"]
                     #  remove overlapping discrete symmetries
@@ -194,7 +195,7 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1., 2.]:
+    for tvt in [1e-8, 1e-7, 1e-6, 1e-5]:
     # for tvt in [1.]:
         # outlier_rejection_treshold_trans = 0.10,
         # outlier_rejection_treshold_rot = 10 * np.pi / 180,
@@ -207,22 +208,26 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
         forked_params.t_validity_treshold = tvt
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
-        rvt_list = [0.0000125, 1e-5, 0.00012, 1e-4, 1e-3, 1e-2, 1e-1, 1.]
+        # rvt_list = [0.0000125, 1e-5, 0.00012, 1e-4, 1e-3, 1e-2, 1e-1, 1.]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         # for ortr in ortr_list:
-        for rvt in rvt_list: # precision oriented, recall oriented for static
-        # for rvt in [0.00012]: # precision oriented, recall oriented for static
+        # for rvt in rvt_list: # precision oriented, recall oriented for static
+        for rvt in [0.00012]: # precision oriented, recall oriented for static
         # for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
             # forked_params.R_validity_treshold = params.R_validity_treshold * rvt
             # forked_params.t_validity_treshold = params.t_validity_treshold * tvt
             # forked_params.outlier_rejection_treshold_rot = ortr
+            # forked_params = copy.deepcopy(params)
             forked_params.R_validity_treshold = rvt
 
-            recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
+            recalculated_results = recalculate_validity(results,
+                                                        forked_params.t_validity_treshold,
+                                                        forked_params.R_validity_treshold,
+                                                        forked_params.reject_overlaps)
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
