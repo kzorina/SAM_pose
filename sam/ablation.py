@@ -118,7 +118,7 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
         time_stamp = i/30  # time in secs if fps=30
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
         if cam_pose_noise_t_std is not None or cam_pose_noise_r_std is not None:
-            # breakpoint()
+            breakpoint()
             T_wc = apply_noise(T_wc,
                                 t_std=obj_pose_noise_t_std,
                                 r_std=obj_pose_noise_r_std
@@ -126,7 +126,7 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
         Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
-            breakpoint()
+            # breakpoint()
             for obj_label in detections.keys():
                 new_list = []
                 for el in detections[obj_label]:
