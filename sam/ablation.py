@@ -300,8 +300,8 @@ def main():
     cam_pose_noise_t_std = None
     cam_pose_noise_r_std = None
 
-    for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
-        for cam_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
+    for obj_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
+        for obj_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
             anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, 
                             dataset_type=dataset_type, 
                             obj_pose_noise_t_std=obj_pose_noise_t_std,
