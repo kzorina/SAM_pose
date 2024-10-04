@@ -219,7 +219,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
-            SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
+            # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
+            SAVE_CSV_COMMENT = f'hupper-noise-0.01'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
@@ -299,23 +300,22 @@ def main():
     cam_pose_noise_t_std = None
     cam_pose_noise_r_std = None
 
-    for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.05, 0.1]:
-        for cam_pose_noise_r_std in [0., 0.01, 0.05, 0.1, 0.25]:
-            anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, 
-                            dataset_type=dataset_type, 
-                            obj_pose_noise_t_std=obj_pose_noise_t_std,
-                            obj_pose_noise_r_std=obj_pose_noise_r_std,
-                            cam_pose_noise_t_std=cam_pose_noise_t_std,
-                            cam_pose_noise_r_std=cam_pose_noise_r_std,
-                            which_modality=which_modality,
-                            load_scene=False)
-    # for trans in [1]:
-    #     for rot in [1]:
-    #         forked_params = copy.deepcopy(base_params)
-    #         # forked_params.outlier_rejection_treshold_trans = trans
-    #         # forked_params.outlier_rejection_treshold_rot = rot
-    #         # pool.apply_async(anotate_dataset, args=(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type))
-    #         anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality, load_scene=True)
+    # for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.05, 0.1]:
+    #     for cam_pose_noise_r_std in [0., 0.01, 0.05, 0.1, 0.25]:
+    #         anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, 
+    #                         dataset_type=dataset_type, 
+    #                         obj_pose_noise_t_std=obj_pose_noise_t_std,
+    #                         obj_pose_noise_r_std=obj_pose_noise_r_std,
+    #                         cam_pose_noise_t_std=cam_pose_noise_t_std,
+    #                         cam_pose_noise_r_std=cam_pose_noise_r_std,
+    #                         which_modality=which_modality,
+    #                         load_scene=False)
+
+    forked_params = copy.deepcopy(base_params)
+    anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality, load_scene=True)
+
+
+
     # pool.close()
     # pool.join()
 
