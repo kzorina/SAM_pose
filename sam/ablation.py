@@ -222,7 +222,7 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
-            SAVE_CSV_COMMENT = f'-baseline-new-cov'
+            SAVE_CSV_COMMENT = f'-baseline-new-reject'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
             export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_kz" / output_name)
@@ -238,8 +238,8 @@ def main():
     }
     start_time = time.time()
     dataset_type = "ycbv" if DATASET_NAME == 'ycbv' else "hope"
-    reject_overlaps = 0.05
-    # reject_overlaps = -1  # for radius based overlap threshold
+    # reject_overlaps = 0.05
+    reject_overlaps = -1  # for radius based overlap threshold
     # dataset_type = "hope"
 
     # DATASET_NAME = "SynthDynamicOcclusion"
