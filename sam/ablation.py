@@ -123,8 +123,8 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
                                 t_std=cam_pose_noise_t_std,
                                 r_std=cam_pose_noise_r_std
                                 )
-        Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
-        # Q_T_wc = np.eye(6)*obj_pose_noise_t_std**2  # uncertainty in cam pose
+        # Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
+        Q_T_wc = np.eye(6)*obj_pose_noise_t_std**2  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
             breakpoint()
@@ -220,7 +220,7 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
-            SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
+            SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'huber-noise-0.1'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
