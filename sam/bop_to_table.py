@@ -35,16 +35,17 @@ def display_table(data_dict, col_width=10):
 # precision_data = pickle.load(open(precision_file, 'rb'))
 
 # Variant 2: load from bop saved logs
-bop_log_dir = Path('/home/ros/kzorina/vojtas/bop_eval')
-METHOD_BACKBONE = 'cosy_'
-# COMMENT = 'synt_real_0.0_threshold_'
-COMMENT = 'synt_real_0.0_threshold_noreject_'
-SAVE_CSV_COMMENT = 'search-parameters2'
-DATASET_NAME = 'ycbv'
+bop_log_dir = Path('/home/ros/kzorina/vojtas/bop_eval_kz')
 # METHOD_BACKBONE = 'cosy_'
-# COMMENT = 'synt_real_0.0_threshold_'
+# # COMMENT = 'synt_real_0.0_threshold_'
+# COMMENT = 'synt_real_0.0_threshold_noreject_'
+# SAVE_CSV_COMMENT = 'search-parameters2'
+# DATASET_NAME = 'ycbv'
+# # METHOD_BACKBONE = 'cosy_'
+# # COMMENT = 'synt_real_0.0_threshold_'
 which_modality = 'static'  # 'static', 'dynamic'
-metrics = ['ad', 'adi']
+# metrics = ['ad', 'adi']
+metrics = ['vsd', 'mssd', 'mspd']
 
 if which_modality == 'static':
     base_params = GlobalParams(
@@ -73,13 +74,15 @@ elif which_modality == 'dynamic':
 metric_save = {}
 for metric in metrics:
     metric_save[metric] = {}
-for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-    for ortr in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
-        # base_params.R_validity_treshold = rvt
-        # base_params.t_validity_treshold = tvt
-        base_params.outlier_rejection_treshold_trans = ortt
-        base_params.outlier_rejection_treshold_rot = ortr
-        eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
+for rvt in [0.0000125, 1e-5, 0.00012, 1e-4, 1e-3, 1e-2, 1e-1, 1.]:
+    for tvt in [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1., 2.]:
+        base_params.R_validity_treshold = rvt
+        base_params.t_validity_treshold = tvt
+        # base_params.outlier_rejection_treshold_trans = ortt
+        # base_params.outlier_rejection_treshold_rot = ortr
+        
+        # eval_dir = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(base_params)}'
+        eval_dir = f'gtsam-look-for-params_hopeVideo-test_{str(base_params)}'
         print(bop_log_dir / eval_dir / 'scores_bop19.json')
         scores = str(bop_log_dir / eval_dir / 'scores_bop19.json')
         if not pathlib.Path(scores).exists():
@@ -87,7 +90,8 @@ for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
             continue
         data = json.load(open(scores))
         for metric in metrics:
-            metric_save[metric][(ortt, ortr)] = data['bop19_average_recall_' + metric]
+            metric_save[metric][(rvt, tvt)] = data['bop19_average_recall_' + metric]
+            # metric_save[metric][(ortt, ortr)] = data['bop19_average_recall_' + metric]
         # recall_data[(tvt, rvt)] = np.mean([data['bop19_average_recall_' + m] for m in metrics])
         # precision_data[(tvt, rvt)] = np.mean([data['bop19_average_precision_' + m] for m in metrics])
 for metric in metrics:
