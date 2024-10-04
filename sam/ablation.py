@@ -195,8 +195,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1e-8, 1e-7, 1e-6, 1e-5]:
-    # for tvt in [1.]:
+    # for tvt in [1e-8, 1e-7, 1e-6, 1e-5]:
+    for tvt in [1.]:
         # outlier_rejection_treshold_trans = 0.10,
         # outlier_rejection_treshold_rot = 10 * np.pi / 180,
         # for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
@@ -208,7 +208,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
         forked_params.t_validity_treshold = tvt
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
-        rvt_list = [0.0000125, 0.00012, 1e-4, 1e-3, 1e-2]
+        # rvt_list = [0.0000125, 0.00012, 1e-4, 1e-3, 1e-2]
+        rvt_list = [1.2e-05, 1.6e-05, 2e-05, 2.5e-05, 3.1e-05, 4e-05, 5e-05, 6.3e-05, 7.9e-05, 0.0001, 0.000125, 0.000158, 0.000199, 0.00025, 0.000315, 0.000397, 0.0005, 0.000629, 0.000792, 0.000998, 0.001256, 0.001582, 0.001992, 0.002508, 0.003158, 0.003977, 0.005008, 0.006306, 0.007941]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
