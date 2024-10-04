@@ -124,7 +124,7 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
                                 r_std=cam_pose_noise_r_std
                                 )
         # Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
-        Q_T_wc = np.eye(6)*obj_pose_noise_t_std**2  # uncertainty in cam pose
+        Q_T_wc = np.eye(6)*cam_pose_noise_t_std**2  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
             breakpoint()
