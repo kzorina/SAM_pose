@@ -312,7 +312,8 @@ def main():
     #                         load_scene=False)
 
     forked_params = copy.deepcopy(base_params)
-    anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality, load_scene=True)
+    anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, dataset_type, which_modality, 
+                    load_scene=False)
 
 
 
