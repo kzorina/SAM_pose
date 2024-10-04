@@ -117,13 +117,16 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
     for i in range(len(scene_camera)):  # iter over image_ids
         time_stamp = i/30  # time in secs if fps=30
         T_wc = np.linalg.inv(scene_camera[i]['T_cw'])
-        if cam_pose_noise_t_std is not None or cam_pose_noise_r_std is not None:
+        Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
+        if cam_pose_noise_t_std is not None and cam_pose_noise_r_std is not None:
+            np.fill_diagonal(Q_T_wc, [cam_pose_noise_t_std] * 3 + [cam_pose_noise_r_std] *3)
             # breakpoint()
             T_wc = apply_noise(T_wc,
                                 t_std=cam_pose_noise_t_std,
                                 r_std=cam_pose_noise_r_std
                                 )
         Q_T_wc = np.eye(6)*10**(-6)  # uncertainty in cam pose
+        
         # Q_T_wc = np.eye(6)*cam_pose_noise_t_std**2 if cam_pose_noise_t_std != 0. else np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
@@ -191,7 +194,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             with open(scene_path / f'{METHOD_BACKBONE}{COMMENT}frames_refined_prediction.p', 'wb') as file:
                 pickle.dump(refined_scene, file)
         results[scene_num] = refined_scene
-    for tvt in [1.]:
+    for tvt in [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1., 2.]:
+    # for tvt in [1.]:
         # outlier_rejection_treshold_trans = 0.10,
         # outlier_rejection_treshold_rot = 10 * np.pi / 180,
         # for ortt in [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]:
@@ -203,13 +207,13 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
         forked_params.t_validity_treshold = tvt
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
-        # rvt_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
+        rvt_list = [0.0000125, 1e-5, 0.00012, 1e-4, 1e-3, 1e-2, 1e-1, 1.]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
         # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         # for ortr in ortr_list:
-        # for rvt in rvt_list: # precision oriented, recall oriented for static
-        for rvt in [0.00012]: # precision oriented, recall oriented for static
+        for rvt in rvt_list: # precision oriented, recall oriented for static
+        # for rvt in [0.00012]: # precision oriented, recall oriented for static
         # for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
@@ -222,10 +226,11 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
-            SAVE_CSV_COMMENT = f'-baseline-new-reject-new-cov'
+            # SAVE_CSV_COMMENT = f'-baseline-new-reject-new-cov'
+            SAVE_CSV_COMMENT = f'-look-for-params'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
-            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_kz" / output_name)
+            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_params" / output_name)
 
 def main():
 
