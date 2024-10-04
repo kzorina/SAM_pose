@@ -46,14 +46,14 @@ def measurement_covariance_prime(
     Tco: np.ndarray, pixel_size: np.ndarray | int | float
 ) -> np.ndarray:
     """Covariance of the measurement."""
-    # # intial Vojtech params
-    # params_xy = np.asarray([2.6e-03, 2.0e-05])
-    # params_z = np.asarray([2.2e-02, 1.5e-05])
-    # params_angle = np.asarray([1.4e-01, 3.7e-05])
-    # Vladimir recomputed params
-    params_xy = array([2.04e-03, 2.42e-06])
-    params_z = array([2.06e-02, 5.69e-06])
-    params_angle = array([1.24e-01, 4.52e-06])
+    # intial Vojtech params
+    params_xy = np.asarray([2.6e-03, 2.0e-05])
+    params_z = np.asarray([2.2e-02, 1.5e-05])
+    params_angle = np.asarray([1.4e-01, 3.7e-05])
+    # # Vladimir recomputed params
+    # params_xy = array([2.04e-03, 2.42e-06])
+    # params_z = array([2.06e-02, 5.69e-06])
+    # params_angle = array([1.24e-01, 4.52e-06])
 
     var_xy = exponential_function(pixel_size, *params_xy) ** 2
     var_z = exponential_function(pixel_size, *params_z) ** 2
