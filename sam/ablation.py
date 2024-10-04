@@ -127,7 +127,7 @@ def refine_data(scene_camera, frames_prediction, px_counts, params:GlobalParams,
         # Q_T_wc = np.eye(6)*cam_pose_noise_t_std**2 if cam_pose_noise_t_std != 0. else np.eye(6)*10**(-6)  # uncertainty in cam pose
         detections = merge_T_cos_px_counts(frames_prediction[i], px_counts[i])  # T_co and Q for all detected object in a frame.
         if obj_pose_noise_t_std is not None or obj_pose_noise_r_std is not None:
-            breakpoint()
+            # breakpoint()
             for obj_label in detections.keys():
                 new_list = []
                 for el in detections[obj_label]:
@@ -219,7 +219,8 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             forked_params.R_validity_treshold = rvt
 
             recalculated_results = recalculate_validity(results, forked_params.t_validity_treshold, forked_params.R_validity_treshold, forked_params.reject_overlaps)
-            SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
+            # SAVE_CSV_COMMENT = f'noisy-object-{obj_pose_noise_t_std}-{obj_pose_noise_r_std}'
+            SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'huber-noise-0.001'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
@@ -301,10 +302,10 @@ def main():
     cam_pose_noise_t_std = None
     cam_pose_noise_r_std = None
 
-    for obj_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
-        for obj_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
-    # for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
-    #     for cam_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
+    # for obj_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
+    #     for obj_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
+    for cam_pose_noise_t_std in [0., 0.005, 0.01, 0.015, 0.02]:
+        for cam_pose_noise_r_std in [0., 1.75, 2.5, 3.75, 5]:
             anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes, forked_params, 
                             dataset_type=dataset_type, 
                             obj_pose_noise_t_std=obj_pose_noise_t_std,
