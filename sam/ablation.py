@@ -209,13 +209,13 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
         # rvt_list = [1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3]
         # ortr_list = [1e-4, 1e-3, 1e-2, 1e-1, 1., 2., 3., 5., 10.]
         # rvt_list = [0.0000125, 0.00012, 1e-4, 1e-3, 1e-2]
-        rvt_list = [1.2e-05, 1.6e-05, 2e-05, 2.5e-05, 3.1e-05, 4e-05, 5e-05, 6.3e-05, 7.9e-05, 0.0001, 0.000125, 0.000158, 0.000199, 0.00025, 0.000315, 0.000397, 0.0005, 0.000629, 0.000792, 0.000998, 0.001256, 0.001582, 0.001992, 0.002508, 0.003158, 0.003977, 0.005008, 0.006306, 0.007941]
+        # rvt_list = [1.2e-05, 1.6e-05, 2e-05, 2.5e-05, 3.1e-05, 4e-05, 5e-05, 6.3e-05, 7.9e-05, 0.0001, 0.000125, 0.000158, 0.000199, 0.00025, 0.000315, 0.000397, 0.0005, 0.000629, 0.000792, 0.000998, 0.001256, 0.001582, 0.001992, 0.002508, 0.003158, 0.003977, 0.005008, 0.006306, 0.007941]
         # rvt_list = [0.0000125, 0.00012] if which_modality == 'static' else [0.000937, 0.00187]
         # for rvt in [0.000937, 0.00187]: # precision oriented, recall oriented for dynamic
-        # for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
+        for rvt in [0.0000125, 0.00012]: # precision oriented, recall oriented for static
         # for ortr in ortr_list:
-        for rvt in rvt_list: # precision oriented, recall oriented for static
-        # for rvt in [0.00012]: # precision oriented, recall oriented for static
+        # for rvt in rvt_list: # precision oriented, recall oriented for static
+        # for rvt in [0.00012]: #  recall oriented for static
         # for rvt in [1]: # precision oriented, recall oriented for static
         # for rvt in [0.0006400,0.0003200,0.0001600,0.0001200,0.0000800,0.0000400,0.0000200,0.0000175,0.0000150,0.0000125,0.0000100,0.0000075,0.0000050,0.0000025,0.0000010]:
             # forked_params = copy.deepcopy(params)
@@ -233,10 +233,10 @@ def anotate_dataset(DATASETS_PATH, DATASET_NAME, scenes,
             # SAVE_CSV_COMMENT = f'noisy-camera-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'noisy-camera-std-based-q-{cam_pose_noise_t_std}-{cam_pose_noise_r_std}'
             # SAVE_CSV_COMMENT = f'-baseline-new-reject-new-cov'
-            SAVE_CSV_COMMENT = f'-look-for-params'
+            SAVE_CSV_COMMENT = f'-baseline-new-reject'
             output_name = f'gtsam{SAVE_CSV_COMMENT}_{DATASET_NAME}-test_{METHOD_BACKBONE}{COMMENT}{str(forked_params)}.csv'
             print('saving final result to ', output_name)
-            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation_params" / output_name)
+            export_bop(convert_frames_to_bop(recalculated_results, dataset_type), DATASETS_PATH / DATASET_NAME / "ablation" / output_name)
 
 def main():
 
