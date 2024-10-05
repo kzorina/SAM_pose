@@ -76,12 +76,12 @@ for metric in metrics:
     metric_save[metric] = {}
 
 rvt_list = [0.0000125, 1e-5, 0.00012, 1e-4, 1e-3, 1e-2, 1e-1, 1.]
-rvt_list +=[1.2e-05, 1.6e-05, 2e-05, 2.5e-05, 3.1e-05, 4e-05, 5e-05, 6.3e-05, 7.9e-05, 0.0001, 0.000125, 0.000158,
-            0.000199, 0.00025, 0.000315, 0.000397, 0.0005, 0.000629, 0.000792, 0.000998, 0.001256, 0.001582, 0.001992,
-            0.002508, 0.003158, 0.003977, 0.005008, 0.006306, 0.007941]
+# rvt_list += [1.2e-05, 1.6e-05, 2e-05, 2.5e-05, 3.1e-05, 4e-05, 5e-05, 6.3e-05, 7.9e-05, 0.0001, 0.000125, 0.000158,
+#             0.000199, 0.00025, 0.000315, 0.000397, 0.0005, 0.000629, 0.000792, 0.000998, 0.001256, 0.001582, 0.001992,
+#             0.002508, 0.003158, 0.003977, 0.005008, 0.006306, 0.007941]
 
 for rvt in rvt_list:
-    for tvt in [1.]:
+    for tvt in [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1.]:
         base_params.R_validity_treshold = rvt
         base_params.t_validity_treshold = tvt
         # base_params.outlier_rejection_treshold_trans = ortt
@@ -103,17 +103,17 @@ for rvt in rvt_list:
 # for metric in metrics:
 #     print(f"{metric} results")
 #     display_table(metric_save[metric])
-# print("Recall results")
-# display_table(recall_data)
-# print("Precision results")
-# display_table(precision_data)
-print("Recall results [tvt=1]")
-for tvt in [1.]:
-    for rvt in rvt_list:
-        print(f"rvt {rvt}   -   {recall_data[(tvt, rvt)]}")
-print("Precision results [tvt=1]")
-for tvt in [1.]:
-    for rvt in rvt_list:
-        print(f"rvt {rvt}   -   {precision_data[(tvt, rvt)]}")
-pickle.dump(recall_data, open('recall_data.p', 'wb'))
-pickle.dump(precision_data, open('precision_data.p', 'wb'))
+print("Recall results")
+display_table(recall_data)
+print("Precision results")
+display_table(precision_data)
+# print("Recall results [tvt=1]")
+# for tvt in [1.]:
+#     for rvt in rvt_list:
+#         print(f"rvt {rvt}   -   {recall_data[(tvt, rvt)]}")
+# print("Precision results [tvt=1]")
+# for tvt in [1.]:
+#     for rvt in rvt_list:
+#         print(f"rvt {rvt}   -   {precision_data[(tvt, rvt)]}")
+# pickle.dump(recall_data, open('recall_data.p', 'wb'))
+# pickle.dump(precision_data, open('precision_data.p', 'wb'))
