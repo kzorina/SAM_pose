@@ -115,3 +115,5 @@ print("Precision results [tvt=1]")
 for tvt in [1.]:
     for rvt in rvt_list:
         print(f"rvt {rvt}   -   {precision_data[(tvt, rvt)]}")
+pickle.dump(recall_data, open('recall_data.p', 'wb'))
+pickle.dump(precision_data, open('precision_data.p', 'wb'))
